@@ -18,5 +18,5 @@ Python modules
 * Remember that for security reasons the `.env` file is not added in the repository, hence you must create your own file.
 ### Init
 Once with all dependencies, and config instructions completed. With the python venv activated use the following command.
-`llm_auditor>python src/app.py`. The only works when initialized from the root directory. 
+`llm_auditor>python src/app.py`. The app only works when initialized from the root directory. 
 
