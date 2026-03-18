@@ -2,10 +2,10 @@
 Auditor of public procurement documents. The program is designed for windows.
 
 ## Dependencies.
-Windows programs
+### Windows programs
 1. Tesseract
 2. Poppler (For pdf2image)
-Python modules
+### Python modules
 1. pytesseract
 2. pdf2image
 3. dotenv
