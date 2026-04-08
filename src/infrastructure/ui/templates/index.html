@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Brother</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        darkbg: '#0f172a',
+                        darkpanel: '#1e293b',
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;600;800&display=swap"
+        rel="stylesheet">
+
+    <!-- KaTeX CSS for beautiful Math rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <!-- highlight.js CSS for code syntax highlighting -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/tokyo-night-dark.min.css">
+
+    <!-- Markdown & Markdown Plugins -->
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-highlight@2.1.0/lib/index.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked-katex-extension@5.0.0/lib/index.umd.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .title-text {
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: -0.05em;
+        }
+
+        /* Scrollbar customization */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background-color: #475569;
+        }
+
+        /* Markdown Styles */
+        .markdown-body {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .markdown-body p {
+            margin-bottom: 0.75em;
+        }
+
+        .markdown-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .markdown-body ul {
+            list-style-type: disc;
+            margin-left: 1.5rem;
+            margin-bottom: 0.75em;
+        }
+
+        .markdown-body ol {
+            list-style-type: decimal;
+            margin-left: 1.5rem;
+            margin-bottom: 0.75em;
+        }
+
+        .markdown-body h1,
+        .markdown-body h2,
+        .markdown-body h3,
+        .markdown-body h4 {
+            font-weight: 600;
+            margin-top: 1.25em;
+            margin-bottom: 0.5em;
+        }
+
+        .markdown-body h1 {
+            font-size: 1.4em;
+        }
+
+        .markdown-body h2 {
+            font-size: 1.2em;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+            padding-bottom: 0.3em;
+        }
+
+        .markdown-body h3 {
+            font-size: 1.1em;
+        }
+
+        .markdown-body pre {
+            background: #1a1b26;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 0.75rem 0;
+            border: 1px solid #292e42;
+        }
+
+        .markdown-body pre code {
+            background: transparent;
+            padding: 0;
+            font-family: 'Fira Code', ui-monospace, monospace;
+            font-size: 0.9em;
+        }
+
+        .markdown-body code:not(pre code) {
+            font-family: ui-monospace, monospace;
+            font-size: 0.9em;
+            background: rgba(128, 128, 128, 0.2);
+            padding: 0.15rem 0.3rem;
+            border-radius: 0.25rem;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid #64748b;
+            padding-left: 1rem;
+            color: #cbd5e1;
+            margin: 0.75rem 0;
+            font-style: italic;
+        }
+
+        /* Math display styling */
+        .katex-display {
+            margin: 1em 0;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .5;
+            }
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 text-slate-900 dark:bg-darkbg dark:text-slate-100 h-screen flex flex-col transition-colors duration-300">
+    <!-- Header -->
+    <header
+        class="flex justify-between items-center p-6 border-b border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-darkbg/70 backdrop-blur-md sticky top-0 z-10 transition-colors duration-300">
+        <div class="flex items-center gap-3">
+            <h1
+                class="text-3xl font-extrabold title-text bg-clip-text text-transparent bg-gradient-to-r from-red-600 to-orange-500 dark:from-red-500 dark:to-orange-400 drop-shadow-sm uppercase tracking-tighter">
+                Big Brother</h1>
+            <h4
+                class="text-lg font-extrabold title-text bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-purple-300">
+                V1.1</h4>
+        </div>
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+            aria-label="Toggle Dark Mode">
+            <svg id="theme-toggle-dark-icon" class="w-6 h-6 hidden text-slate-700 dark:text-slate-300"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+            </svg>
+            <svg id="theme-toggle-light-icon" class="w-6 h-6 hidden text-slate-700 dark:text-slate-300"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                    fill-rule="evenodd" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </header>
+
+    <!-- Chat Container -->
+    <main class="flex-1 overflow-y-auto w-full p-4 sm:p-6 flex justify-center">
+        <div class="w-full max-w-4xl flex flex-col gap-6" id="chat-box">
+            <!-- Initial AI Message -->
+            <div class="flex gap-4">
+                <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-tr from-red-600 to-orange-500 flex items-center justify-center shrink-0 shadow-lg border border-red-700">
+                    <span class="text-white font-bold text-lg leading-none">BB</span>
+                </div>
+                <div
+                    class="bg-white dark:bg-darkpanel p-5 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200 leading-relaxed max-w-[85%]">
+                    <p>I am Big Brother. I am watching, learning, and responding. State your inquiry or provide
+                        documents for processing.</p>
+                </div>
+            </div>
+            <!-- Future messages will go here -->
+        </div>
+    </main>
+
+    <!-- Input Area -->
+    <footer
+        class="p-4 sm:p-6 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-darkbg/80 backdrop-blur-xl shrink-0">
+        <div class="max-w-4xl mx-auto flex flex-col gap-2">
+            <!-- File attachment preview -->
+            <div id="file-preview"
+                class="hidden self-start flex items-center gap-2 px-3 py-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 shadow-sm border border-slate-300 dark:border-slate-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-red-500" viewBox="0 0 20 20"
+                    fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                        clip-rule="evenodd" />
+                </svg>
+                <span id="file-name" class="max-w-[200px] truncate">file.pdf</span>
+                <button id="remove-file-btn"
+                    class="ml-1 text-slate-500 hover:text-red-500 transition-colors focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <div
+                class="relative group flex items-end gap-2 bg-white dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700 rounded-2xl p-2 shadow-sm focus-within:ring-2 focus-within:ring-red-500/50 focus-within:border-red-500 dark:focus-within:border-red-500 transition-all duration-300">
+                <input type="file" id="file-input" accept="application/pdf" class="hidden">
+                <button id="attach-btn"
+                    class="p-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus:outline-none shrink-0"
+                    title="Attach PDF">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 transform -rotate-45" fill="none"
+                        viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                </button>
+
+                <textarea id="message-input" rows="1"
+                    class="w-full bg-transparent resize-none outline-none max-h-48 text-slate-800 dark:text-slate-100 p-2.5 placeholder-slate-400 dark:placeholder-slate-500 leading-relaxed"
+                    placeholder="Transmit thought or attach document..."></textarea>
+                <button id="send-btn"
+                    class="p-4 bg-slate-900 dark:bg-red-600 hover:bg-slate-800 dark:hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-300 shrink-0 shadow-md transform hover:scale-[1.03] active:scale-[0.97] flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="max-w-4xl mx-auto flex justify-center">
+            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-3 font-semibold tracking-widest uppercase">Big
+                Brother is always watching</p>
+        </div>
+    </footer>
+
+    <script>
+        // Theme toggle logic
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+
+        function updateThemeIcons() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+            } else {
+                themeToggleLightIcon.classList.add('hidden');
+                themeToggleDarkIcon.classList.remove('hidden');
+            }
+        }
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateThemeIcons();
+
+        themeToggleBtn.addEventListener('click', function () {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+            updateThemeIcons();
+        });
+
+        // Auto-resize textarea
+        const tx = document.getElementById('message-input');
+        tx.setAttribute('style', 'height:' + (tx.scrollHeight) + 'px;overflow-y:hidden;');
+        tx.addEventListener("input", OnInput, false);
+
+        function OnInput() {
+            this.style.height = 'auto'; // Reset first
+            this.style.height = (this.scrollHeight) + 'px';
+            if (this.value === '') {
+                this.style.height = 'auto';
+            }
+        }
+
+        // Initialize advanced Markdown Parsing
+        if (typeof marked !== 'undefined') {
+            if (typeof window.markedKatex !== 'undefined') {
+                marked.use(window.markedKatex({
+                    throwOnError: false,
+                    displayMode: false
+                }));
+            }
+            if (typeof window.markedHighlight !== 'undefined') {
+                marked.use(window.markedHighlight.markedHighlight({
+                    langPrefix: 'hljs language-',
+                    highlight(code, lang) {
+                        const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                        return hljs.highlight(code, { language }).value;
+                    }
+                }));
+            }
+        }
+
+        // File attachment logic
+        const fileInput = document.getElementById('file-input');
+        const attachBtn = document.getElementById('attach-btn');
+        const filePreview = document.getElementById('file-preview');
+        const fileNameSpan = document.getElementById('file-name');
+        const removeFileBtn = document.getElementById('remove-file-btn');
+        let selectedFile = null;
+
+        attachBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.type !== 'application/pdf') {
+                    alert('Only PDF files are supported.');
+                    fileInput.value = '';
+                    return;
+                }
+                selectedFile = file;
+                fileNameSpan.textContent = file.name;
+                filePreview.classList.remove('hidden');
+            }
+        });
+
+        removeFileBtn.addEventListener('click', () => {
+            selectedFile = null;
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+        });
+
+        // Chat logic
+        const sendBtn = document.getElementById('send-btn');
+        const chatBox = document.getElementById('chat-box');
+        const mainContentElement = document.querySelector('main');
+
+        function scrollToBottom() {
+            mainContentElement.scrollTop = mainContentElement.scrollHeight;
+        }
+
+        function appendMessage(role, text) {
+            const wrapper = document.createElement('div');
+
+            if (role === 'user') {
+                wrapper.className = 'flex gap-4 flex-row-reverse';
+                wrapper.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <span class="text-slate-600 dark:text-slate-300 font-bold text-sm text-center">U</span>
+                    </div>
+                    <div class="bg-slate-800 dark:bg-slate-700 p-5 rounded-2xl rounded-tr-sm shadow-md text-white border border-transparent leading-relaxed max-w-[85%] whitespace-pre-wrap flex flex-col justify-center"></div>
+                `;
+                wrapper.querySelector('.bg-slate-800').textContent = text;
+            } else {
+                wrapper.className = 'flex gap-4';
+                wrapper.innerHTML = `
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-red-600 to-orange-500 flex items-center justify-center shrink-0 shadow-lg border border-red-700">
+                        <span class="text-white font-bold text-lg leading-none">BB</span>
+                    </div>
+                    <div class="bg-white dark:bg-darkpanel p-5 rounded-2xl rounded-tl-sm shadow-sm border border-slate-100 dark:border-slate-800 text-slate-800 dark:text-slate-200 leading-relaxed max-w-[85%] markdown-body content-box overflow-hidden w-full"></div>
+                `;
+                if (text === null) {
+                    wrapper.querySelector('.content-box').innerHTML = '<span class="animate-pulse">Processing data...</span>';
+                    wrapper.id = 'loading-message';
+                } else {
+                    if (typeof marked !== 'undefined') {
+                        const htmlRaw = marked.parse(text);
+                        const cleanHtml = DOMPurify.sanitize(htmlRaw, {
+                            ADD_TAGS: ['math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'span', 'annotation'],
+                            ADD_ATTR: ['class', 'style', 'aria-hidden']
+                        });
+                        wrapper.querySelector('.content-box').innerHTML = cleanHtml;
+                    } else {
+                        wrapper.querySelector('.content-box').textContent = text;
+                    }
+                }
+            }
+
+            chatBox.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        async function sendMessage() {
+            const text = tx.value.trim();
+            if (!text && !selectedFile) return;
+
+            // Lock UI
+            tx.value = '';
+            tx.style.height = 'auto';
+            tx.disabled = true;
+            sendBtn.disabled = true;
+            attachBtn.disabled = true;
+            removeFileBtn.disabled = true;
+
+            // Display user message and loading bot message
+            let displayMsg = text;
+            if (selectedFile) {
+                if (displayMsg) displayMsg += '\n\n';
+                displayMsg += `*[Attached: ${selectedFile.name}]*`;
+            }
+            appendMessage('user', displayMsg);
+            appendMessage('ai', null);
+
+            // Prepare FormData
+            const formData = new FormData();
+            formData.append('message', text);
+            if (selectedFile) {
+                formData.append('file', selectedFile);
+            }
+
+            // Clear file attachment UI immediately
+            selectedFile = null;
+            fileInput.value = '';
+            filePreview.classList.add('hidden');
+
+            try {
+                // Now using fetch to send multipart/form-data
+                // Note: Don't set Content-Type header manually, let fetch do it so boundary is set automatically
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                const loadingMsg = document.getElementById('loading-message');
+                if (loadingMsg) loadingMsg.remove();
+
+                if (response.ok) {
+                    appendMessage('ai', data.response);
+                } else {
+                    appendMessage('ai', 'Error: ' + (data.error || 'Server error.'));
+                }
+            } catch (err) {
+                const loadingMsg = document.getElementById('loading-message');
+                if (loadingMsg) loadingMsg.remove();
+                appendMessage('ai', 'Connection error. The network may be down.');
+            } finally {
+                tx.disabled = false;
+                sendBtn.disabled = false;
+                attachBtn.disabled = false;
+                removeFileBtn.disabled = false;
+                tx.focus();
+                scrollToBottom();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        tx.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+
+</html>
