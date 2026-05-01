@@ -1,4 +1,4 @@
-# bigbrother
+# dania
 Auditor of public procurement documents. The program is designed for windows.
 
 ## Dependencies.
