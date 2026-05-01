@@ -5,3 +5,4 @@ Scripts
 pyvenv.cfg
 tests
 src/secopii_data.db
+__pycache__
