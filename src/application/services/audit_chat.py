@@ -1,6 +1,7 @@
 from src.domain.models import ChatRequest, ChatResponse
 from src.application.ports.ocr_port import OcrPort
 from src.application.ports.llm_port import LlmPort
+import json
 
 class AuditChatService:
     def __init__(self, ocr_port: OcrPort, llm_port: LlmPort, system_prompt: str, poppler_path: str):
@@ -31,6 +32,6 @@ class AuditChatService:
                 system_prompt=self.system_prompt, 
                 user_content=final_content
             )
-            return ChatResponse(text=response_text)
+            return ChatResponse(**json.loads(response_text))
         except Exception as e:
             raise RuntimeError(str(e))

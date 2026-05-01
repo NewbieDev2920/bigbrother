@@ -1,6 +1,7 @@
 import json
 from google import genai
 from src.application.ports.llm_port import LlmPort
+from src.domain.models import ChatResponse
 
 class GeminiLlmAdapter(LlmPort):
     def __init__(self, api_key: str):
@@ -17,11 +18,14 @@ class GeminiLlmAdapter(LlmPort):
             response = self.client.models.generate_content(
                 model="gemini-3-flash-preview", 
                 config={
-                    "system_instruction": system_prompt
+                    "system_instruction": system_prompt,
+                    "response_mime_type" : "application/json",
+                    "response_json_schema" : ChatResponse.model_json_schema()
                 },
                 contents=user_content
             )
             # Retornamos el texto crudo en Markdown como espera la UI
+            print(response.text)
             return response.text
         except Exception as e:
             raise RuntimeError(f"Error calling Gemini: {str(e)}")

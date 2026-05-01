@@ -3,3 +3,5 @@ Include
 Lib
 Scripts
 pyvenv.cfg
+tests
+src/secopii_data.db
