@@ -3,7 +3,12 @@ Include
 Lib
 Scripts
 pyvenv.cfg
-tests
+tests/APU_data.csv
+tests/sancion_secopi.csv
+tests/SECOP_ENTRIES.csv
+tests/secopii_contratos.csv
+tests/secopii_invias.csv
+tests/secopii_procesos_contratos2.csv
 src/secopii_data.db
 __pycache__
 storage

@@ -1,0 +1,6 @@
+.....
+----------------------------------------------------------------------
+Ran 5 tests in 0.006s
+
+OK
+[WARNING] El dataset utilizado para buscar sanciones pertenece a SECOP I, no a SECOP II.
