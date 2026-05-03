@@ -411,15 +411,41 @@
                     wrapper.querySelector('.content-box').innerHTML = '<span class="animate-pulse">Processing data...</span>';
                     wrapper.id = 'loading-message';
                 } else {
+                    let processedText = text;
+                    // Remove enclosing markdown code block if the LLM wrapped the entire message in it
+                    if (processedText.trim().startsWith('```markdown') && processedText.trim().endsWith('```')) {
+                        processedText = processedText.trim().replace(/^```markdown\n?/, '').replace(/\n?```$/, '');
+                    }
+                    
                     if (typeof marked !== 'undefined') {
-                        const htmlRaw = marked.parse(text);
-                        const cleanHtml = DOMPurify.sanitize(htmlRaw, {
-                            ADD_TAGS: ['math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'span', 'annotation'],
-                            ADD_ATTR: ['class', 'style', 'aria-hidden']
-                        });
-                        wrapper.querySelector('.content-box').innerHTML = cleanHtml;
+                        try {
+                            // En marked v11, si se usan extensiones async, podría retornar una promesa.
+                            const htmlRaw = marked.parse(processedText);
+                            if (htmlRaw instanceof Promise) {
+                                htmlRaw.then(resolvedHtml => {
+                                    const cleanHtml = DOMPurify.sanitize(resolvedHtml, {
+                                        ADD_TAGS: ['math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'span', 'annotation'],
+                                        ADD_ATTR: ['class', 'style', 'aria-hidden']
+                                    });
+                                    wrapper.querySelector('.content-box').innerHTML = cleanHtml;
+                                }).catch(err => {
+                                    console.error("Markdown parse promise error:", err);
+                                    wrapper.querySelector('.content-box').textContent = processedText;
+                                });
+                            } else {
+                                const cleanHtml = DOMPurify.sanitize(htmlRaw, {
+                                    ADD_TAGS: ['math', 'semantics', 'mrow', 'mi', 'mo', 'mn', 'msup', 'span', 'annotation'],
+                                    ADD_ATTR: ['class', 'style', 'aria-hidden']
+                                });
+                                wrapper.querySelector('.content-box').innerHTML = cleanHtml;
+                            }
+                        } catch (err) {
+                            console.error("Markdown parse error:", err);
+                            // Fallback to text if parsing fails
+                            wrapper.querySelector('.content-box').textContent = processedText;
+                        }
                     } else {
-                        wrapper.querySelector('.content-box').textContent = text;
+                        wrapper.querySelector('.content-box').textContent = processedText;
                     }
                 }
             }
@@ -476,6 +502,7 @@
 
                 if (response.ok) {
                     appendMessage('ai', data.response);
+                    checkAndPromptNITs(data.response, data.tributaries);
                 } else {
                     appendMessage('ai', 'Error: ' + (data.error || 'Server error.'));
                 }
@@ -501,6 +528,177 @@
                 sendMessage();
             }
         });
+
+        function checkAndPromptNITs(text, tributaries) {
+            let nits = [];
+
+            if (tributaries && tributaries.length > 0) {
+                nits = tributaries.map(t => t.nit).filter(Boolean);
+            }
+
+            if (nits.length === 0 && text) {
+                try {
+                    const parsed = JSON.parse(text);
+                    nits = extractNITs(parsed);
+                } catch (e) {
+                    const jsonBlocks = text.match(/```(?:json)?\n([\s\S]*?)\n```/g);
+                    if (jsonBlocks) {
+                        for (const block of jsonBlocks) {
+                            try {
+                                const cleanBlock = block.replace(/```(?:json)?\n/, '').replace(/\n```/, '');
+                                const parsed = JSON.parse(cleanBlock);
+                                const extracted = extractNITs(parsed);
+                                if (extracted.length > 0) {
+                                    nits = nits.concat(extracted);
+                                }
+                            } catch (err) { }
+                        }
+                    } else {
+                        const maybeJsonMatches = text.match(/\{[\s\S]*?\}/g);
+                        if (maybeJsonMatches) {
+                            for (const block of maybeJsonMatches) {
+                                try {
+                                    const parsed = JSON.parse(block);
+                                    const extracted = extractNITs(parsed);
+                                    if (extracted.length > 0) {
+                                        nits = nits.concat(extracted);
+                                    }
+                                } catch (err) { }
+                            }
+                        }
+                    }
+                }
+            }
+
+            nits = [...new Set(nits)];
+
+            if (nits.length > 0) {
+                showNITPrompt(nits);
+            }
+        }
+
+        function extractNITs(obj) {
+            let found = [];
+            if (typeof obj === 'string') {
+                return found;
+            }
+            if (Array.isArray(obj)) {
+                for (let item of obj) {
+                    found = found.concat(extractNITs(item));
+                }
+            } else if (typeof obj === 'object' && obj !== null) {
+                for (let key in obj) {
+                    if (key.toUpperCase().includes('NIT')) {
+                        if (Array.isArray(obj[key])) {
+                            found = found.concat(obj[key]);
+                        } else if (typeof obj[key] === 'string' || typeof obj[key] === 'number') {
+                            found.push(obj[key].toString());
+                        } else {
+                            found = found.concat(extractNITs(obj[key]));
+                        }
+                    } else {
+                        found = found.concat(extractNITs(obj[key]));
+                    }
+                }
+            }
+            return found;
+        }
+
+        function showNITPrompt(nits) {
+            const promptId = 'nit-prompt-' + Date.now();
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex gap-4 w-full justify-end mt-2 mb-4';
+            wrapper.id = promptId;
+            wrapper.innerHTML = `
+                <div class="bg-indigo-50 dark:bg-indigo-900/40 p-4 rounded-2xl rounded-tr-sm shadow-md border border-indigo-100 dark:border-indigo-700/50 text-slate-800 dark:text-slate-200 leading-relaxed max-w-[85%] w-full flex flex-col">
+                    <div class="flex items-center gap-2 mb-3 text-indigo-700 dark:text-indigo-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="font-bold">Análisis Adicional Disponible</span>
+                    </div>
+                    <p class="font-medium mb-1">Se han detectado los siguientes NITs: ${nits.join(', ')}</p>
+                    <p class="mb-4 text-sm text-slate-600 dark:text-slate-400">¿Deseas calcular estadísticos e índice Dania para estos NITs?</p>
+                    <div class="flex gap-3 justify-end mt-auto">
+                        <button onclick="handleNITResponse('${promptId}', false, '${nits.join(',')}')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-500 hover:border-red-300 dark:hover:border-red-700 transition-colors shadow-sm text-sm font-medium">
+                            <span class="text-red-500 font-bold text-lg leading-none">❌</span> No
+                        </button>
+                        <button onclick="handleNITResponse('${promptId}', true, '${nits.join(',')}')" class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-600 hover:border-emerald-300 dark:hover:border-emerald-700 transition-colors shadow-sm text-sm font-medium">
+                            <span class="text-emerald-500 font-bold text-lg leading-none">✅</span> Sí, calcular
+                        </button>
+                    </div>
+                </div>
+                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                    <span class="text-slate-600 dark:text-slate-300 font-bold text-sm text-center">U</span>
+                </div>
+            `;
+            chatBox.appendChild(wrapper);
+            scrollToBottom();
+        }
+
+        window.handleNITResponse = function (promptId, accepted, nitsStr) {
+            const promptElement = document.getElementById(promptId);
+            if (!promptElement) return;
+
+            const nits = nitsStr.split(',');
+
+            if (accepted) {
+                promptElement.innerHTML = `
+                    <div class="bg-emerald-50 dark:bg-emerald-900/20 p-5 rounded-2xl rounded-tr-sm shadow-sm border border-emerald-100 dark:border-emerald-800/50 text-slate-800 dark:text-slate-200 leading-relaxed max-w-[85%] w-full">
+                        <div class="flex items-center gap-2 mb-3 text-emerald-700 dark:text-emerald-400">
+                            <span class="text-lg">✅</span>
+                            <span class="font-bold">Calculando estadísticos e índice Dania para: ${nits.join(', ')}</span>
+                        </div>
+                        <div class="mt-4 flex flex-col gap-4" id="dashboard-${promptId}">
+                        </div>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <span class="text-slate-600 dark:text-slate-300 font-bold text-sm text-center">U</span>
+                    </div>
+                `;
+
+                const dashboardContainer = document.getElementById(`dashboard-${promptId}`);
+
+                let dashboardsHTML = '';
+                nits.forEach(nit => {
+                    dashboardsHTML += `
+                        <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 mt-2">
+                            <h3 class="font-bold text-lg mb-3 text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                                </svg>
+                                NIT: ${nit}
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl flex flex-col items-center justify-center h-32 border border-dashed border-slate-300 dark:border-slate-600 hover:border-indigo-400 transition-colors">
+                                    <span class="text-2xl mb-1">📊</span>
+                                    <span class="text-slate-500 dark:text-slate-400 font-medium text-sm text-center">Estadísticos y Datos<br/>(En construcción)</span>
+                                </div>
+                                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 p-4 rounded-xl flex flex-col items-center justify-center h-32 border border-indigo-100 dark:border-indigo-800/50 shadow-inner">
+                                    <span class="text-3xl mb-1 text-indigo-500 dark:text-indigo-400 font-display font-extrabold tracking-tight">85.4</span>
+                                    <span class="text-indigo-700 dark:text-indigo-300 font-bold font-display uppercase tracking-wider text-sm">Índice Danía</span>
+                                    <span class="text-xs text-indigo-500 dark:text-indigo-400 mt-1">(Placeholder)</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                dashboardContainer.innerHTML = dashboardsHTML;
+                
+            } else {
+                promptElement.innerHTML = `
+                    <div class="bg-slate-100 dark:bg-slate-800/80 p-4 rounded-2xl rounded-tr-sm shadow-sm border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 leading-relaxed max-w-[85%] w-full flex items-center gap-3">
+                        <span class="text-lg">❌</span>
+                        <p class="font-medium text-sm">Cálculo de estadísticos para los NITs omitido.</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 flex items-center justify-center shrink-0 shadow-inner">
+                        <span class="text-slate-600 dark:text-slate-300 font-bold text-sm text-center">U</span>
+                    </div>
+                `;
+            }
+            scrollToBottom();
+        }
     </script>
 </body>
 

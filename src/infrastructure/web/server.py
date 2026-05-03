@@ -30,8 +30,14 @@ def create_app(audit_chat_service, target_pdf_path: str):
 
         try:
             response = audit_chat_service.process_chat(chat_request)
-            # Response.text might be JSON string due to our adapter
-            return jsonify({"response": response.chat_msg})
+            tributaries = []
+            if getattr(response, "tributary_list", None):
+                tributaries = [{"name": t.name, "nit": t.nit} for t in response.tributary_list]
+
+            return jsonify({
+                "response": response.chat_msg,
+                "tributaries": tributaries
+            })
         except ValueError as ve:
             return jsonify({"error": str(ve)}), 400
         except RuntimeError as re:

@@ -1,0 +1,164 @@
+{
+    "generated_at": "2026-05-03T13:18:02.048353+00:00",
+    "table_shapes": {
+        "secopii_contratos": 5609985,
+        "secopii_invias": 25202,
+        "secopii_sanciones": 1704,
+        "secopii_users": 1569393,
+        "secopii_procesos": 8121922
+    },
+    "numeric_stats": {
+        "secopii_contratos": {
+            "valor_del_contrato": {
+                "mu": 433089544.1557063,
+                "sigma": 41135011870.93561,
+                "n": 5609985
+            },
+            "valor_de_pago_adelantado": {
+                "mu": 1139676480.4688559,
+                "sigma": 2697924284091.404,
+                "n": 5609985
+            },
+            "valor_facturado": {
+                "mu": 47508233.579471536,
+                "sigma": 1639780984.163133,
+                "n": 5609985
+            },
+            "valor_pagado": {
+                "mu": 39680939.41519039,
+                "sigma": 1480012919.948372,
+                "n": 5609985
+            }
+        },
+        "secopii_invias": {
+            "valor_del_contrato": {
+                "mu": 1715726410.8843334,
+                "sigma": 37099520520.57394,
+                "n": 25202
+            },
+            "valor_de_pago_adelantado": {
+                "mu": 282790.57677962136,
+                "sigma": 26244160.739777416,
+                "n": 25202
+            },
+            "valor_facturado": {
+                "mu": 27027664.831164263,
+                "sigma": 123212249.44195741,
+                "n": 25202
+            },
+            "valor_pagado": {
+                "mu": 26253278.511824507,
+                "sigma": 120452083.00284237,
+                "n": 25202
+            }
+        },
+        "secopii_sanciones": {
+            "valor_sancion": {
+                "mu": 9596353329.934849,
+                "sigma": 270837773321.30704,
+                "n": 1704
+            }
+        },
+        "secopii_procesos": {
+            "valor_total_adjudicacion": {
+                "mu": 635679443307.802,
+                "sigma": 1272798479725548.5,
+                "n": 8121922
+            },
+            "proveedores_unicos_con_respuestas": {
+                "mu": 0.25329607942554755,
+                "sigma": 2.1484540126949296,
+                "n": 8121922
+            },
+            "precio_base": {
+                "mu": 23896187356.154846,
+                "sigma": 42611839508729.87,
+                "n": 8121922
+            },
+            "duracion": {
+                "mu": 1171.7422362585583,
+                "sigma": 627847.7997486265,
+                "n": 8121922
+            }
+        }
+    },
+    "date_delta_stats": {
+        "secopii_procesos": {
+            "velocidad_adjudicacion_dias": {
+                "mu": 13.134650004652196,
+                "sigma": 119.62359068008847,
+                "n": 494378
+            }
+        }
+    },
+    "omitted_percentages": {
+        "secopii_contratos": {
+            "valor_del_contrato": 0.0,
+            "valor_de_pago_adelantado": 0.0,
+            "valor_facturado": 0.0,
+            "valor_pagado": 0.0
+        },
+        "secopii_invias": {
+            "valor_del_contrato": 0.0,
+            "valor_de_pago_adelantado": 0.0,
+            "valor_facturado": 0.0,
+            "valor_pagado": 0.0
+        },
+        "secopii_sanciones": {
+            "valor_sancion": 0.0
+        },
+        "secopii_procesos": {
+            "valor_total_adjudicacion": 0.0,
+            "proveedores_unicos_con_respuestas": 0.0,
+            "precio_base": 0.0,
+            "duracion": 0.0,
+            "velocidad_adjudicacion_dias": 93.91304176523734
+        }
+    },
+    "feature_stats": {
+        "x1": {
+            "mu": 0.015,
+            "sigma": 0.15740076238697195
+        },
+        "x2": {
+            "mu": 0.0026557495251769846,
+            "sigma": 0.00582877936233037
+        },
+        "x3": {
+            "mu": 0.8711954281225543,
+            "sigma": 0.13379370217817893
+        },
+        "x4": {
+            "mu": 8.70009786190953,
+            "sigma": 3.3627811903245686
+        },
+        "x5": {
+            "mu": 0.00039768708921412115,
+            "sigma": 0.0017007541892338843
+        },
+        "x6": {
+            "mu": 0.7481103053926043,
+            "sigma": 0.30621777366016395
+        },
+        "x7": {
+            "mu": 3.6052466218358017,
+            "sigma": 1.1299953262832254
+        },
+        "x8": {
+            "mu": 2.4450432714999457,
+            "sigma": 2.9456525315169926
+        },
+        "x9": {
+            "mu": 0.38992956441190335,
+            "sigma": 0.38182791342312067
+        },
+        "x10": {
+            "mu": 4.948107346123573,
+            "sigma": 4.774497569987644
+        },
+        "x11": {
+            "mu": 0.5526768543956044,
+            "sigma": 0.4953556369127399
+        }
+    }
+}

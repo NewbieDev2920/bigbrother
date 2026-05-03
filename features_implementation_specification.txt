@@ -1,0 +1,51 @@
+1) def tiene_sancion_previa(nit:str) -> list:
+    #Retorna la lista de sanciones de una empresa basado en su NIT.
+---
+2) def concentracion_de_contratos(nit:str) -> dict:
+    #Retorna proporciones de contratos en SECOP(storage/secopii_contratos.db) e INVIAS(storage/secopii_invias.db) 
+    #la proporcion claramente se calcula: (cantidad contratos del contratista/total de contratos). Para ambos SECOP e INVIAS
+    #Para las 2 proporciones retornalas en un diccionario. Los valores deben ser float
+---
+3) def concentracion_de_modalidad_de_contratacion(nit:str) -> dict:
+    #En storage/secopii_contratos.db se encuentra una columna llamada modalidad_de_contratacion.
+    #Primero dectecta las clases. Una vez hecho, con la lista de contratos de un nit en especifico (Lo cual retorna de otra funcion)
+    #Calcula la propocion (numero de contratos de clase/total de contratos del contratista). Recuerda que las clases se calculan a partir de las modalidades de modalidad_de_contratacion
+    #Para cada clase retorna la proporcion en el diccionario. Los valores deben ser float.
+    #Despues usaremos esto para un histograma.
+---
+4) def Zscore_para_proporciones(proporcion : float, mu : float, sigma : float) -> dict:
+    #Este Zscore se utiliza para ver que tan desviado esta una proporcion del promedio de proporciones.
+    #Retorna Z score
+---
+5) def Ztest(Zscore : float) -> float:
+    #Retorna el p-valor que comprende el intervalo [Zscore, mu] o [mu, Zscore]
+---
+6) def dias_desde_la_creacion(nit : str) -> int:
+    #en storage/secopii_contratistas busca fecha_creacion basado en el nit. Calcula la cantidad de dias que han transcurrido desde la creacion.
+---
+7) def razon_de_anticipio(valor_del_contrato : float, valor_de_pago_adelantado : float) -> float
+def razon_de_anticipo(id_procedimiento: float) -> float: 
+#para ambos retornar la proporcion de (valor_del_contrato/valor_de_pago_adelantado)
+def razon_de_anticipo_promedio(nit) -> float:
+#calcular el promedio de razon de anticipo de la lista de contratos de la empresa.
+---
+8) def razon_de_ejecucion(valor_pagado : float, valor_facturado : float) -> float
+def razon_de_ejecucion(id_procedimiento: float) -> float: 
+#para ambos retornar la proporcion de (valor_pagado/valor_facturado)
+def razon_de_ejecucion_promedio(nit) -> float:
+#calcular el promedio de razon de ejecucion de la lista de contratos de la empresa.
+---
+9) Zscore estandarizado/normalizado()
+
+10) def serie_de_tiempo_cantidad_contratos(nit:str):
+    #Utiliza el formato de retorno que veas mejor
+    #con la lista de contratos sorteados haz una serie de tiempo con eje x (mes) y f(x) (cantidad de contratos)
+    def promedio_serie_de_tiempo() (\frac{1}{b-a} integral_a^b f(x) dx) (para cantidad y su derivada)
+    def derivada_serie_de_tiempo_cantidad_contratos()
+    def serie_de_tiempo_zscore_derivadas() con 1, 1.5, 2, y 3 desviaciones estandar como funcion constante
+    para detectar cuando la derivada es anomala.
+11) TODAS LAS MISMAS COSAS DE EL INCISO ANTERIOR, PERO AHORA NO CON CANTIDAD DE CONTRATO SINO CON LA 
+SUMATORIA DE VALORES DE CONTRATOS. recuerda incluir serie_de_tiempo_sum_valores() f(x), f'(x), \frac{1}{b-a} int_a^b f(x) dx,
+serie_detiempo_zscore_derivadas() con 1, 1.5, 2 y 3 desviaciones estandar como funcion constante.
+
+
