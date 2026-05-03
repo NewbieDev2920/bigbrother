@@ -63,8 +63,8 @@ def main():
 
     for (x_label, name), key in zip(labels, keys):
         val = res["features_raw"].get(key, 0.0)
-        # Usar .6f para mostrar valores pequeños
-        print(f"  {x_label:<4} {name:<30}: {_color(f'{val:.6f}', BOLD)}")
+        # Usar .10f para mostrar valores extremadamente pequeños (ej. concentracion)
+        print(f"  {x_label:<4} {name:<30}: {_color(f'{val:.10f}', BOLD)}")
 
     print(f"\n{_color('-- Resultados del Modelo', BOLD)}")
     delta = res["delta"]

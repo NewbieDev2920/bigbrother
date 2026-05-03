@@ -301,6 +301,14 @@ def generate_global_statistics(
             stats["omitted_percentages"].setdefault(table_name, {}).update(o)
             gc.collect()
 
+        # ── Entity counts for x9 ──────────────────────────────────────────────
+        if table_name == "secopii_procesos":
+            print("    Calculando conteos por entidad (x9)...")
+            cur = conn.cursor()
+            cur.execute("SELECT nit_entidad, COUNT(*) FROM secopii_procesos GROUP BY nit_entidad")
+            stats["entity_counts"] = {str(r[0]): int(r[1]) for r in cur.fetchall()}
+            print(f"    - {len(stats['entity_counts']):,} entidades procesadas.")
+
         conn.close()
 
     with open(output_path, "w", encoding="utf-8") as f:

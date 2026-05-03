@@ -13,14 +13,15 @@ def apply_optimization_indexes():
             "name": "contratos",
             "db": config["DB_PATH_CONTRATOS"],
             "queries": [
-                "CREATE INDEX IF NOT EXISTS idx_contratos_nit_norm ON secopii_contratos(REPLACE(nit_entidad, ',', ''));"
+                # Contractor index (Primary use case for Dania scoring)
+                "CREATE INDEX IF NOT EXISTS idx_contratos_doc_prov_norm ON secopii_contratos(REPLACE(documento_proveedor, ',', ''));"
             ]
         },
         {
             "name": "invias",
             "db": config["DB_PATH_INVIAS"],
             "queries": [
-                "CREATE INDEX IF NOT EXISTS idx_invias_nit_norm ON secopii_invias(REPLACE(nit_entidad, ',', ''));"
+                "CREATE INDEX IF NOT EXISTS idx_invias_doc_prov_norm ON secopii_invias(REPLACE(documento_proveedor, ',', ''));"
             ]
         },
         {
@@ -34,8 +35,10 @@ def apply_optimization_indexes():
             "name": "procesos",
             "db": config["DB_PATH_PROCESOS"],
             "queries": [
-                "CREATE INDEX IF NOT EXISTS idx_procesos_nit_ent_norm ON secopii_procesos(REPLACE(nit_entidad, ',', ''));",
-                "CREATE INDEX IF NOT EXISTS idx_procesos_nit_prov_norm ON secopii_procesos(REPLACE(nit_del_proveedor_adjudicado, ',', ''));"
+                # Contractor index
+                "CREATE INDEX IF NOT EXISTS idx_procesos_nit_prov_norm ON secopii_procesos(REPLACE(nit_del_proveedor_adjudicado, ',', ''));",
+                # Entity index for x9 (using raw nit_entidad)
+                "CREATE INDEX IF NOT EXISTS idx_procesos_nit_entidad ON secopii_procesos(nit_entidad);"
             ]
         }
     ]
