@@ -1,4 +1,8 @@
 """
+import sys
+import os
+# Añadir el directorio raíz al path para que funcionen los imports y se encuentre config.json desde cli_scripts/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 generate_global_statistics.py
 ------------------------------
 Script de pre-cómputo ejecutado UNA SOLA VEZ para reducir la complejidad

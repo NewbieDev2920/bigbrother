@@ -1,3 +1,8 @@
+
+import sys
+import os
+# Añadir el directorio raíz al path para que funcionen los imports y se encuentre config.json desde cli_scripts/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json, os, sqlite3, time, numpy as np, pandas as pd, sys
 from src.domain.services.dania_scoring import DaniaScoringService, normalize_nit
 from src.infrastructure.adapters.sqlite_contratistas_crud import SQLiteSecopContratistaAdapter
@@ -7,8 +12,8 @@ from src.infrastructure.adapters.sqlite_invias_crud import SQLiteSecopInviasAdap
 from src.infrastructure.adapters.sqlite_procesos_crud import SQLiteSecopProcesoAdapter
 
 def run_stats(sample_size=200):
-    config_path = "config.json"
-    stats_path = "global_statistics.json"
+    config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
+    stats_path = os.path.join(os.path.dirname(__file__), "..", "global_statistics.json")
     with open(config_path, 'r', encoding='utf-8') as f: config = json.load(f)
     conn = sqlite3.connect(config["DB_PATH_CONTRATOS"])
     cur = conn.cursor()

@@ -1,3 +1,8 @@
+
+import sys
+import os
+# Añadir el directorio raíz al path para que funcionen los imports y se encuentre config.json desde cli_scripts/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json, os, sqlite3, time, numpy as np, pandas as pd, sys
 from src.domain.services.dania_scoring import DaniaScoringService, normalize_nit
 from src.infrastructure.adapters.sqlite_contratistas_crud import SQLiteSecopContratistaAdapter
@@ -6,8 +11,8 @@ from src.infrastructure.adapters.sqlite_sanciones_crud import SQLiteSecopSancion
 from src.infrastructure.adapters.sqlite_invias_crud import SQLiteSecopInviasAdapter
 from src.infrastructure.adapters.sqlite_procesos_crud import SQLiteSecopProcesoAdapter
 
-config_path = "config.json"
-stats_path = "global_statistics.json"
+config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
+stats_path = os.path.join(os.path.dirname(__file__), "..", "global_statistics.json")
 service = DaniaScoringService(SQLiteSecopContratistaAdapter(config_path), SQLiteSecopContratoAdapter(config_path), SQLiteSecopSancionAdapter(config_path), SQLiteSecopInviasAdapter(config_path), SQLiteSecopProcesoAdapter(config_path), config_path=config_path, stats_path=stats_path)
 
 nit = "900192544" # Known NIT

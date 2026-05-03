@@ -1,4 +1,8 @@
 """
+import sys
+import os
+# Añadir el directorio raíz al path para que funcionen los imports y se encuentre config.json desde cli_scripts/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 get_company_info.py
 --------------------
 Busca y despliega toda la información de un contratista en SECOP II basado en su NIT.
@@ -12,7 +16,7 @@ import sys
 
 def get_company_info(nit: str):
     # Cargar configuración
-    config_path = "config.json"
+    config_path = os.path.join(os.path.dirname(__file__), "..", "config.json")
     if not os.path.exists(config_path):
         print(f"[!] Error: No se encontró {config_path}")
         return
