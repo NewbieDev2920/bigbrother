@@ -2,22 +2,22 @@
 ======================================================
   ESTADÍSTICOS DESCRIPTIVOS - ÍNDICE DANIA
 ======================================================
-N:          120
-Media:      25650.903768
+N:          37
+Media:      23421.776963
 Mín:        0.030000
-Mediana:    45597.040061
-Máx:        45620.702053
+Mediana:    45597.039646
+Máx:        45619.578275
 ======================================================
 PROMEDIO DE CADA FEATURE (Raw):
   - x1_sanciones                            : 0.0000000000
-  - x2_concentracion_contratos              : 0.0000005823
-  - x3_max_modalidad                        : 0.6719518256
-  - x4_dias_desde_creacion                  : 1671.9166666667
-  - x5_razon_anticipo                       : 0.0001250000
-  - x6_razon_ejecucion                      : 0.3984273976
-  - x7_max_log_growth_count                 : 0.0216890807
-  - x8_max_log_growth_value                 : 0.1966445441
-  - x9_max_concentracion_entidad_proveedor  : 0.0000669344
-  - x10_velocidad_adjudicacion_dias         : 0.0666666667
-  - x11_prob_ganar_adjudicacion             : 0.0028402767
+  - x2_concentracion_contratos              : 0.0000003902
+  - x3_max_modalidad                        : 0.6649774775
+  - x4_dias_desde_creacion                  : 1233.1891891892
+  - x5_razon_anticipo                       : 0.0000000000
+  - x6_razon_ejecucion                      : 0.4435655962
+  - x7_max_log_growth_count                 : 0.0219170329
+  - x8_max_log_growth_value                 : 0.1090088545
+  - x9_max_concentracion_entidad_proveedor  : 0.0000000000
+  - x10_velocidad_adjudicacion_dias         : 0.0000000000
+  - x11_prob_ganar_adjudicacion             : 0.0000000000
 ======================================================

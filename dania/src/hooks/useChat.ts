@@ -7,7 +7,8 @@ const EMPTY: ChatMessage[] = [];
 
 export function useChat(projectId: string) {
   const messages = useChatStore((s) => s.byProject[projectId] ?? EMPTY);
-  const { append, reset } = useChatStore.getState();
+  const sessionId = useChatStore((s) => s.sessions[projectId] ?? `session-${projectId}`);
+  const { append, reset, setSession } = useChatStore.getState();
 
   const mutation = useMutation({
     mutationFn: async (question: string) => {
@@ -18,7 +19,16 @@ export function useChat(projectId: string) {
         timestamp: new Date().toISOString(),
       };
       append(projectId, userMsg);
-      const reply = await ai.askAboutDocument(projectId, question);
+      
+      const { chatMsg } = await ai.askAboutDocument(projectId, question, sessionId);
+      
+      const reply: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: chatMsg,
+        timestamp: new Date().toISOString(),
+      };
+      
       append(projectId, reply);
       return reply;
     },

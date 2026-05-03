@@ -3,23 +3,29 @@
     "TARGET_PDF_PATH": "src/target.pdf",
     "POPPLER_PATH": "C:\\Program Files\\poppler\\Library\\bin",
     "VERSION": "V1.1",
+    "GEMINI_MODEL": "gemini-1.5-flash",
     "DB_PATH_CONTRATISTAS": "storage/secopii_contratistas.db",
     "DB_PATH_CONTRATOS": "storage/secopii_contratos.db",
     "DB_PATH_SANCIONES": "storage/secopii_sanciones.db",
     "DB_PATH_INVIAS": "storage/secopii_invias.db",
     "DB_PATH_PROCESOS": "storage/secopii_procesos_contratacion.db",
-    "ANOMALY_THRESHOLDS": [1.0, 1.5, 2.0, 3.0],
+    "ANOMALY_THRESHOLDS": [
+        1.0,
+        1.5,
+        2.0,
+        3.0
+    ],
     "DANIA_WEIGHTS": {
-        "x1_sanciones":                           1,
-        "x2_concentracion_contratos":             7,
-        "x3_max_modalidad":                       3,
-        "x4_dias_desde_creacion":                12,
-        "x5_razon_anticipo":                     14,
-        "x6_razon_ejecucion":                    14,
-        "x7_max_log_growth_count":               10,
-        "x8_max_log_growth_value":                5,
+        "x1_sanciones": 1,
+        "x2_concentracion_contratos": 7,
+        "x3_max_modalidad": 3,
+        "x4_dias_desde_creacion": 12,
+        "x5_razon_anticipo": 14,
+        "x6_razon_ejecucion": 14,
+        "x7_max_log_growth_count": 10,
+        "x8_max_log_growth_value": 5,
         "x9_max_concentracion_entidad_proveedor": 12,
-        "x10_velocidad_adjudicacion_dias":         5,
-        "x11_prob_ganar_adjudicacion":            11
+        "x10_velocidad_adjudicacion_dias": 5,
+        "x11_prob_ganar_adjudicacion": 11
     }
 }

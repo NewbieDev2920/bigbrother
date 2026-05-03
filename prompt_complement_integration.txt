@@ -1,0 +1,55 @@
+Integración frontend y backend
+
+Endpoint 
+"/":  
+1) Aquí hay dos secciones que deben ser interactivas, primero el buscador, actualmente el buscador
+tiene un place holder que dice para buscar, contrato, entidad, nit y municipio. Sin embargo, este
+solo debe buscar NIT, cambia el place holder, agrega un boton que puesto un place holder en el campo
+de busqueda busque ese NIT. El resultado, debe ser lo que aparece en cli_scripts/test_dania_scoring.py
+Es decir, debe dar los features y el índice Dania.
+
+2) La segunda parte interactiva es la subida de documento. Una vez el usuario sube el documento
+el pipeline va a ser el típico de application/services/audit_chat.py
+
+Adicionalmente ten en cuenta que la transición entre subir el documento y auditarlo tiene un
+proceso de carga que está diseñado en el fronted, de ahora en adelante necesito que, la carga
+y su despliegue visual sea verdad, no simulado.
+
+"/proyecto/proyecto-prueba": 1) En la sección de proyecto será necesario modificar los modelos 
+previamente establecidos en pydantic
+
+class ChatResponse(BaseModel):
+    chat_msg :str =  Field(description = "El mensaje de texto que analiza el documento y responde la necesidad del usuario.")
+    trichotomous_output : str = Field(description = "Output tricotómico con formato estricto. Estados posibles del documento: APTO/NOAPTO/NA. NA En caso de no tener suficiente información.")
+    tributary_list : List[Tributary]
+    metadata: Optional[Dict[str, Any]] = None
+
+este es el que debe ser modificado, se encuentra en domain/models.py. Como puedes ver este modelo y
+el frontend no se adaptan en particular debes modificar ambos, el modelo y el frontend, de modo que
+aparezca el costo (o n/a si no aplica). La lista de entidades, el periodo o fecha, la lista de contratistas
+la modalidad de selección, o modalidad en general (si no aplica n/a) y también la ubicación
+(si no aplica n/a) para ello debes tener el ChatResponse(BaseModel) correcto, de modo que Gemini API 
+te devuelva la respuesta en un formato estructurado y con caracteristicas que se extraigan facilmente.
+Nota tambien que para ello no basta modificar el modelo sino todo el PIPELINE de respuesta. tambien
+pon un atributo que diga el riesgo de corrupción de modo que esto tambien se pueda aplicar al frontend.
+
+2) Pon el visualizador del contrato así como estabajo. Pero haz que funcione, finalmente vas a tener
+que cambiar la el modo de interacción con GEMINI API, ya que despues haber subido el documento 
+debe haber una conversación multi-turno, la actual olvida la conversación inmediatamente despues
+del mensaje, el objetivo de la conversación multiturno es dejar que el usario haga consultas acerca
+del documento y procesos de licitación. Desecha todos los place holders innecesarios. como los
+mensajes pre establecidos.
+
+3) Abajo de la sección project analysis necesito que quites todas las categorias, quiero que
+las reemplaces, como sabrás, el ChatResponse tiene un atributo tributary_list, que a su vez 
+contiene un atrbuto NIT. Asi como utilizaras esta lista para desplegarlo en la parte de entidad y
+contratista, necesito que aquí en especifico pongas los resultados de el retorno de cli_scripts/
+test_dania_scoring.py al aplicar estos NITs, no te olvides de parsearlos para que el SCRIPT pueda
+recibirlos.
+
+---
+POSDATA: Te doy autorización para cambiar el frontend como te parezca conveniente en caso de que las
+listas de NIT arruinen la estética y el layout. Haz lo que conserve la estética. La parte visual
+es extremadamente importante en este proyecto. NINGUN RESULTADO DEBE PARECER COMO SI HUBIERA SALIDO
+DEL CLI, TERMINAL DE COMANDOS, TODO DEBE ESTAR EN MODO DE DASHBOARD CON UNA INTERFAZ DE USUARIO PROFESIONAL
+ULTRA MODERNA Y QUE ALUDA A UNA USER EXPERIENCE DE CALIDAD PREMIUM.

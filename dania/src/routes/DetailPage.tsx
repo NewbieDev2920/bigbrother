@@ -48,7 +48,12 @@ export default function DetailPage() {
 
   const aspect = aspecto as AspectKey;
   const { project, analysis } = data;
-  const aspectScore = analysis.aspectos[aspect];
+  const aspectScore = analysis?.aspectos?.[aspect];
+  
+  if (!aspectScore) {
+    return <PageShell><EmptyState title="Cargando..." description="" /></PageShell>;
+  }
+
   const idx = ASPECT_KEYS.indexOf(aspect);
   const prev = idx > 0 ? ASPECT_KEYS[idx - 1] : null;
   const next = idx < ASPECT_KEYS.length - 1 ? ASPECT_KEYS[idx + 1] : null;

@@ -6,15 +6,23 @@ from pydantic import BaseModel, Field
 class ChatRequest:
     message: str
     file_path: Optional[str] = None
+    session_id: Optional[str] = None
 
 class Tributary(BaseModel):
-    name : str = Field(description="Nombre de empresa, persona natural, juridica. Nombre del tributario.")
-    nit : str = Field(description = "Numero de identificación tributaria (NIT) en formato XXX.XXX.XXX-Y")
+    name: str = Field(description="Nombre de empresa, persona natural, juridica. Nombre del tributario.")
+    nit: str = Field(description="Numero de identificación tributaria (NIT) en formato XXX.XXX.XXX-Y")
 
 class ChatResponse(BaseModel):
-    chat_msg :str =  Field(description = "El mensaje de texto que analiza el documento y responde la necesidad del usuario.")
-    trichotomous_output : str = Field(description = "Output tricotómico con formato estricto. Estados posibles del documento: APTO/NOAPTO/NA. NA En caso de no tener suficiente información.")
-    tributary_list : List[Tributary]
+    chat_msg: str = Field(description="El mensaje de texto que analiza el documento y responde la necesidad del usuario.")
+    trichotomous_output: str = Field(description="Output tricotómico con formato estricto. Estados posibles del documento: APTO/NOAPTO/NA. NA En caso de no tener suficiente información.")
+    tributary_list: List[Tributary] = Field(description="Lista de NITs encontrados en el documento.")
+    costo: str = Field(description="Costo total del proyecto o contrato extraído. Formato moneda o N/A.")
+    lista_entidades: List[str] = Field(description="Nombres de entidades gubernamentales involucradas.")
+    periodo: str = Field(description="Periodo de ejecución o fecha del documento.")
+    lista_contratistas: List[str] = Field(description="Nombres de contratistas o proveedores mencionados.")
+    modalidad: str = Field(description="Modalidad de selección o N/A.")
+    ubicacion: str = Field(description="Ubicación geográfica del proyecto o N/A.")
+    riesgo_corrupcion: float = Field(description="Riesgo de corrupción estimado (0.0 a 1.0) basado exclusivamente en el texto del documento.")
     metadata: Optional[Dict[str, Any]] = None
 
 @dataclass

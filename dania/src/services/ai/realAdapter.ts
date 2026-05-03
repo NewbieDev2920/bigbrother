@@ -1,4 +1,6 @@
 import type { AIAdapter } from './aiAdapter';
+import type { AnalysisResult } from '@/types/analysis';
+import type { Project } from '@/types/project';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
 const KEY = import.meta.env.VITE_DANIA_KEY ?? '';
@@ -13,50 +15,80 @@ const headers = (extra: Record<string, string> = {}) => ({
  * Mapea la respuesta del backend al tipo esperado por la interfaz.
  * Si el backend devuelve campos con otros nombres, el mapeo se hace acá.
  */
+const mapAnalysis = (raw: any): AnalysisResult => ({
+  projectId: raw.project_id || 'new-project',
+  riesgoGlobal: raw.riesgo_corrupcion || 0,
+  chatMsg: raw.chat_msg,
+  trichotomousOutput: raw.trichotomous_output,
+  costo: raw.costo,
+  listaEntidades: raw.lista_entidades || [],
+  periodo: raw.periodo,
+  listaContratistas: raw.lista_contratistas || [],
+  modalidad: raw.modalidad,
+  ubicacion: raw.ubicacion,
+  riesgoCorrupcion: raw.riesgo_corrupcion || 0,
+  tributaryList: raw.tributary_list || [],
+  generadoEn: new Date().toISOString(),
+});
+
 export const realAdapter: AIAdapter = {
-  async analyzeDocument(file) {
+  async analyzeDocument(file, message) {
     const formData = new FormData();
     formData.append('file', file);
-    const res = await fetch(`${API_URL}/analyze`, {
-      method: 'POST',
-      headers: headers(),
-      body: formData,
-    });
-    if (!res.ok) throw new Error(`Análisis falló: ${res.status}`);
-    return res.json();
-  },
+    formData.append('message', message);
+    formData.append('session_id', 'session-' + Date.now());
 
-  async askAboutDocument(projectId, question) {
     const res = await fetch(`${API_URL}/chat`, {
       method: 'POST',
-      headers: headers({ 'Content-Type': 'application/json' }),
-      body: JSON.stringify({ project_id: projectId, question }),
+      body: formData,
     });
-    if (!res.ok) throw new Error('Chat falló');
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `Análisis falló: ${res.status}`);
+    }
+    const data = await res.json();
+    const analysis = mapAnalysis(data);
+    
+    // Create a dummy project object for the UI
+    const project: any = {
+      id: analysis.projectId,
+      nombre: analysis.modalidad + " - " + analysis.ubicacion,
+      entidad: analysis.listaEntidades[0] || 'N/A',
+      contratista: { nombre: analysis.listaContratistas[0] || 'N/A', nit: 'N/A' },
+      costo: parseFloat(analysis.costo.replace(/[^0-9.-]+/g,"")) || 0,
+      riesgoCorrupcion: analysis.riesgoCorrupcion,
+      estado: 'en_proceso',
+    };
+
+    return { project, analysis };
+  },
+
+  async askAboutDocument(projectId, question, sessionId) {
+    const res = await fetch(`${API_URL}/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: question, session_id: sessionId }),
+    });
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Chat falló');
+    }
+    const data = await res.json();
+    return { chatMsg: data.chat_msg, analysis: mapAnalysis(data) };
+  },
+
+  async searchByNit(nit) {
+    const res = await fetch(`${API_URL}/dania/score/${nit}`);
+    if (!res.ok) throw new Error('Búsqueda por NIT falló');
     return res.json();
   },
 
   async searchProjects(query) {
-    const res = await fetch(`${API_URL}/search?q=${encodeURIComponent(query)}`, {
-      headers: headers(),
-    });
-    if (!res.ok) throw new Error('Búsqueda falló');
-    return res.json();
+    // For now, if query looks like a NIT, use searchByNit logic or similar
+    return { exactMatch: null, similar: [] };
   },
 
-  async checkExisting(fileHash) {
-    const res = await fetch(`${API_URL}/exists/${fileHash}`, { headers: headers() });
-    return res.ok ? res.json() : null;
-  },
-
-  async getTrending() {
-    const res = await fetch(`${API_URL}/trending`, { headers: headers() });
-    if (!res.ok) throw new Error('Trending falló');
-    return res.json();
-  },
-
-  async getProject(id) {
-    const res = await fetch(`${API_URL}/projects/${id}`, { headers: headers() });
-    return res.ok ? res.json() : null;
-  },
+  async checkExisting() { return null; },
+  async getTrending() { return { masBuscados: [], mayorRiesgo: [], masMencionados: [] }; },
+  async getProject() { return null; },
 };

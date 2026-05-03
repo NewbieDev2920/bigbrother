@@ -11,12 +11,7 @@ interface ChatPanelProps {
   className?: string;
 }
 
-const SUGGESTIONS = [
-  '¿Cuánto cuesta?',
-  '¿Quién es el contratista?',
-  '¿Cuál es el avance?',
-  '¿Hay sobrecostos?',
-];
+const SUGGESTIONS: string[] = [];
 
 export function ChatPanel({ projectId, documentName, className }: ChatPanelProps) {
   const { messages, sending, send, reset } = useChat(projectId);

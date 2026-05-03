@@ -93,6 +93,7 @@ class DaniaScoringService:
             "procesos":  sqlite3.connect(self.config["DB_PATH_PROCESOS"], check_same_thread=False),
             "users":     sqlite3.connect(self.config["DB_PATH_CONTRATISTAS"], check_same_thread=False)
         }
+        self.conns["users"].row_factory = sqlite3.Row
         self.entity_counts: Dict[str, int] = self.global_stats.get("entity_counts", {})
 
     # ── Features ─────────────────────────────────────────────────────────────
@@ -204,60 +205,71 @@ class DaniaScoringService:
 
     # ── Scoring ──────────────────────────────────────────────────────────────
 
-    def score(self, nit: str) -> dict:
+    def _calculate_score(self, nit: str):
         x = np.zeros(11)
         x[0] = self._x1(nit); x[1] = self._x2(nit); x[2] = self._x3(nit); x[3] = self._x4(nit)
         x[4] = self._x5(nit); x[5] = self._x6(nit); x[6], x[7] = self._x7_x8(nit)
         x[8] = self._x9(nit); x[9] = self._x10(nit); x[10] = self._x11(nit)
         
-        v = x.copy()
-        v[3] = 1.0 / (x[3] + 0.1)
-        v[5] = 1.0 / (x[5]**2 + 0.001) # Formula ajustada x6 (pero el user dijo ejecucion x6)
-        # Re-check: el user dijo "razon de ejecucion puse que era directamente proporcional... x6... 1/(x6)^2+0.001"
-        v[5] = x[5] # x5 (anticipo) se queda igual segun specs anteriores? 
-        v[5] = 1.0 / (x[5]**2 + 0.001) # El usuario menciono x6, pero x6 es razon ejecucion. 
-        # Corregir segun indicacion explicita del usuario: 
-        # "en razón de ejecucion... \frac{1}{(x_6)^2+0.001}"
-        v[5] = 1.0 / (x[6]**2 + 0.001) 
-        v[9] = 1.0 / (x[9] + 0.1)
-        
-        # Ajuste de indices en v para que coincidan con los pesos
-        # Vector v real para calculo:
-        # v[0]=x1, v[1]=x2, v[2]=x3, v[3]=1/(x4+0.1), v[4]=x5, v[5]=1/(x6^2+0.001), v[6]=x7, v[7]=x8, v[8]=x9, v[9]=1/(x10+0.1), v[10]=x11
-        v_final = np.array([
-            x[0], x[1], x[2], 1.0/(x[3]+0.1), x[4], 1.0/(x[5]**2+0.001) if x[5]>0 else 0.0, # Wait, el user dijo x6.
-            x[6], x[7], x[8], 1.0/(x[9]+0.1), x[10]
-        ])
-        
-        # Sigamos la instruccion literal: "en razón de ejecucion... 1/(x6)^2+0.001"
-        # x6 es la razon de ejecucion.
+        # Transform features
         v = np.zeros(11)
         v[0] = x[0]
         v[1] = x[1]
         v[2] = x[2]
         v[3] = 1.0 / (x[3] + 0.1)
-        v[4] = x[4] # Anticipo
-        v[5] = 1.0 / (x[5]**2 + 0.001) # El usuario dijo x6 pero tal vez se refiere al feature 6
-        # El feature 6 es Razon Ejecucion.
-        v[5] = 1.0 / (x[5]**2 + 0.001) 
+        v[4] = x[4] 
+        v[5] = 1.0 / (x[5]**2 + 0.001) # Razon Ejecucion especificada por usuario
         v[6] = x[6]
         v[7] = x[7]
         v[8] = x[8]
         v[9] = 1.0 / (x[9] + 0.1)
         v[10] = x[10]
-
+        
         sigma_safe = np.where(self._sigma == 0, 1.0, self._sigma)
         z = (v - self._mu) / sigma_safe
         z[10] = abs(z[10])
         
         delta = float(np.dot(self.weights, z))
         dania = math.log1p(math.exp(delta)) + 0.03 if delta <= 500 else delta + 0.03
+        riesgo = "alto" if dania >= 0.7 else "medio" if dania >= 0.3 else "bajo"
+        
+        return dict(zip(_WEIGHT_KEYS, x.tolist())), delta, dania, riesgo
+
+    def get_company_info(self, nit: str):
+        nit_clean = nit.replace(".", "").replace(",", "").replace("-", "").strip()
+        # Use the users connection from self.conns
+        cur = self.conns["users"].cursor()
+        cur.execute("SELECT * FROM secopii_users WHERE NIT = ?", (nit_clean,))
+        row = cur.fetchone()
+        if not row:
+            cur.execute("SELECT * FROM secopii_users WHERE NIT LIKE ?", (f"%{nit_clean}%",))
+            row = cur.fetchone()
+        
+        if row:
+            # Handle Row object
+            return {k: row[k] for k in row.keys() if k != 'index'}
+        return None
+
+    def score(self, nit: str):
+        # 1. Get features and score
+        vector_x, delta, d, riesgo = self._calculate_score(nit)
+        
+        # 2. Get company info
+        company_info = self.get_company_info(nit)
         
         return {
-            "nit": nit, "features_raw": dict(zip(_WEIGHT_KEYS, x.tolist())),
-            "delta": delta, "indice_dania": dania
+            "nit": nit,
+            "vector_x": vector_x,
+            "delta": delta,
+            "d": d,
+            "riesgo": riesgo,
+            "company_info": company_info
         }
 
     def __del__(self):
         if hasattr(self, 'conns'):
-            for c in self.conns.values(): c.close()
+            for c in self.conns.values():
+                try:
+                    c.close()
+                except:
+                    pass

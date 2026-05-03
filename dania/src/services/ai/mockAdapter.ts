@@ -18,7 +18,7 @@ const seenHashes = new Map<string, string>();
 const normalize = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 export const mockAdapter: AIAdapter = {
-  async analyzeDocument(file) {
+  async analyzeDocument(file, message) {
     await delay(3500);
     const hash = await fileHash(file);
     let project = mockProjects.find((p) => p.id === seenHashes.get(hash));
@@ -30,17 +30,26 @@ export const mockAdapter: AIAdapter = {
     return { project, analysis: mockAnalyses[project.id] };
   },
 
-  async askAboutDocument(_projectId, question) {
+  async askAboutDocument(projectId, question, sessionId) {
     await delay(1200);
     const key = Object.keys(mockChatResponses).find((k) => normalize(question).includes(k));
     const content =
       (key && mockChatResponses[key]) ??
       'Según el documento analizado, el modelo identifica señales sobre las que se requiere verificación adicional. Indique qué aspecto le interesa profundizar (presupuesto, contratista, tiempo, transparencia o avance) y le entrego el análisis específico.';
     return {
-      id: crypto.randomUUID(),
-      role: 'assistant',
-      content,
-      timestamp: new Date().toISOString(),
+      chatMsg: content,
+      analysis: mockAnalyses[projectId]
+    };
+  },
+
+  async searchByNit(nit) {
+    await delay(500);
+    return {
+      nit,
+      d: 0.12,
+      riesgo: 'bajo',
+      delta: -45.2,
+      vector_x: { x1: 0, x2: 0.0001, x3: 0.8, x4: 2500, x5: 0, x6: 1 }
     };
   },
 

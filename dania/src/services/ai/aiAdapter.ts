@@ -3,8 +3,9 @@ import type { AnalysisResult } from '@/types/analysis';
 import type { ChatMessage } from '@/types/chat';
 
 export interface AIAdapter {
-  analyzeDocument(file: File): Promise<{ project: Project; analysis: AnalysisResult }>;
-  askAboutDocument(projectId: string, question: string): Promise<ChatMessage>;
+  analyzeDocument(file: File, message: string): Promise<{ project: Project; analysis: AnalysisResult }>;
+  askAboutDocument(projectId: string, question: string, sessionId: string): Promise<{ chatMsg: string; analysis: AnalysisResult }>;
+  searchByNit(nit: string): Promise<any>;
   searchProjects(query: string): Promise<{ exactMatch: Project | null; similar: Project[] }>;
   checkExisting(fileHash: string): Promise<Project | null>;
   getTrending(): Promise<{ masBuscados: Project[]; mayorRiesgo: Project[]; masMencionados: Project[] }>;

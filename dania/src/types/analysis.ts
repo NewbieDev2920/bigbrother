@@ -49,8 +49,18 @@ export interface AspectScore {
 
 export interface AnalysisResult {
   projectId: string;
-  riesgoGlobal: number;
-  capas: Record<CapaKey, CapaResult>;
-  aspectos: Record<AspectKey, AspectScore>;
+  riesgoGlobal: number; // 0-1
+  chatMsg: string;
+  trichotomousOutput: 'APTO' | 'NOAPTO' | 'NA';
+  costo: string;
+  listaEntidades: string[];
+  periodo: string;
+  listaContratistas: string[];
+  modalidad: string;
+  ubicacion: string;
+  riesgoCorrupcion: number; // 0-1
+  tributaryList: { name: string; nit: string }[];
+  capas?: Record<CapaKey, CapaResult>;
+  aspectos?: Record<AspectKey, AspectScore>;
   generadoEn: string;
 }

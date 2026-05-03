@@ -1,5 +1,6 @@
 import type { Project } from '@/types/project';
 import type { AnalysisResult, AspectKey, CapaKey, Hallazgo } from '@/types/analysis';
+import { formatCOP } from '@/lib/format';
 
 const h = (
   id: string,
@@ -294,6 +295,19 @@ const buildAnalysis = (
   return {
     projectId: project.id,
     riesgoGlobal: project.riesgoCorrupcion,
+    chatMsg: `Análisis consolidado para el proyecto ${project.nombre}. Se detectan señales de riesgo en las capas de coherencia y redes.`,
+    trichotomousOutput: project.riesgoCorrupcion > 50 ? 'NOAPTO' : 'APTO',
+    costo: formatCOP(project.costo),
+    listaEntidades: [project.entidad],
+    periodo: `${project.fechaInicio} a ${project.fechaFin}`,
+    listaContratistas: [project.contratista.nombre],
+    modalidad: project.modalidadContratacion,
+    ubicacion: `${project.ubicacion.municipio}, ${project.ubicacion.departamento}`,
+    riesgoCorrupcion: project.riesgoCorrupcion / 100,
+    tributaryList: [
+      { name: project.contratista.nombre, nit: project.contratista.nit },
+      { name: 'INTERVENTORÍA ABC', nit: '800123456' }
+    ],
     capas: {
       capa1_documental: {
         score: config.capaScores.capa1_documental,

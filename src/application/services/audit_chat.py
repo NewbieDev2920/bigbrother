@@ -9,29 +9,47 @@ class AuditChatService:
         self.llm_port = llm_port
         self.system_prompt = system_prompt
         self.poppler_path = poppler_path
+        self.histories = {} # Dict[session_id, List[dict]]
 
     def process_chat(self, request: ChatRequest) -> ChatResponse:
         plain_text = ""
+        session_id = request.session_id or "default"
         
-        # 1. OCR if file exists
+        # 1. OCR if file exists (Only on first message of session usually, but here we check)
         if request.file_path:
             try:
                 plain_text = self.ocr_port.extract_text(request.file_path, self.poppler_path)
             except Exception as e:
                 raise ValueError(f"Failed to parse PDF: {str(e)}")
 
-        # 2. Concat
+        # 2. Prepare content
         if plain_text:
-            final_content = f"{request.message}\nPLAIN_TEXT({plain_text})"
+            # First message with document
+            user_content = f"CONTEXTO DEL DOCUMENTO:\n{plain_text}\n\nSOLICITUD DEL USUARIO: {request.message}"
+            # Reset history for new document if same session
+            self.histories[session_id] = []
         else:
-            final_content = request.message
+            # Follow-up message
+            user_content = request.message
 
-        # 3. Call LLM
+        # 3. Call LLM with history
+        history = self.histories.get(session_id, [])
         try:
             response_text = self.llm_port.generate_content(
                 system_prompt=self.system_prompt, 
-                user_content=final_content
+                user_content=user_content,
+                history=history
             )
-            return ChatResponse(**json.loads(response_text))
+            
+            # 4. Parse and update history
+            response_data = json.loads(response_text)
+            
+            # We only store the 'chat_msg' part in history to avoid bloating with structured data
+            # unless we want Gemini to remember the full JSON (usually not needed for conversational flow)
+            history.append({"role": "user", "text": user_content})
+            history.append({"role": "model", "text": response_data.get("chat_msg", "")})
+            self.histories[session_id] = history
+            
+            return ChatResponse(**response_data)
         except Exception as e:
             raise RuntimeError(str(e))

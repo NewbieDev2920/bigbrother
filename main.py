@@ -9,17 +9,17 @@ from src.infrastructure.web.server import create_app
 
 def bootstrap():
     load_dotenv()
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    
     with open('config.json','r', encoding='utf-8') as f:
         config = json.load(f)
 
+    GEMINI_MODEL = config.get("GEMINI_MODEL", "gemini-2.0-flash")
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
     TARGET_PDF_PATH = config["TARGET_PDF_PATH"]
     POPPLER_PATH = config["POPPLER_PATH"]
     SYSTEM_PROMPT = config["SYSTEM_PROMPT"]
 
     # Initialize Outbound Adapters
-    llm_adapter = GeminiLlmAdapter(api_key=GEMINI_API_KEY)
+    llm_adapter = GeminiLlmAdapter(api_key=GEMINI_API_KEY, model_name=GEMINI_MODEL)
     ocr_adapter = TesseractOcrAdapter()
 
     # Initialize the core service (Application)
@@ -30,8 +30,11 @@ def bootstrap():
         poppler_path=POPPLER_PATH
     )
 
+    from src.domain.services.dania_scoring import DaniaScoringService
+    dania_service = DaniaScoringService(config_path='config.json', stats_path='global_statistics.json')
+
     # Initialize the Web framework (Inbound Adapter)
-    app = create_app(audit_chat_service, TARGET_PDF_PATH)
+    app = create_app(audit_chat_service, dania_service, TARGET_PDF_PATH)
     
     return app
 
