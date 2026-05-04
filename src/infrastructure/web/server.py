@@ -5,12 +5,11 @@ from src.domain.models import ChatRequest
 def create_app(audit_chat_service, dania_service, target_pdf_path: str):
     import os
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Pointing to the production build of the dania frontend
-    dist_dir = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'dania', 'dist'))
+    # Pointing to the Vanilla JS frontend
+    dist_dir = os.path.abspath(os.path.join(current_dir, '..', '..', '..', 'dania', 'vanilla'))
     
     if not os.path.exists(dist_dir):
-        # Fallback for debugging if paths are different in some environments
-        dist_dir = os.path.join(os.getcwd(), 'dania', 'dist')
+        os.makedirs(dist_dir, exist_ok=True)
 
     app = Flask(__name__, 
                 static_folder=dist_dir, 
@@ -28,6 +27,12 @@ def create_app(audit_chat_service, dania_service, target_pdf_path: str):
             return send_from_directory(dist_dir, path)
         else:
             return send_from_directory(dist_dir, 'index.html')
+
+    @app.route("/pdf")
+    def get_pdf():
+        directory = os.path.dirname(target_pdf_path)
+        filename = os.path.basename(target_pdf_path)
+        return send_from_directory(directory, filename, mimetype='application/pdf')
 
     @app.route("/chat", methods=["POST"])
     def chat():

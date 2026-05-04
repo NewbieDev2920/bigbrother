@@ -23,6 +23,7 @@ class ChatResponse(BaseModel):
     modalidad: str = Field(description="Modalidad de selección o N/A.")
     ubicacion: str = Field(description="Ubicación geográfica del proyecto o N/A.")
     riesgo_corrupcion: float = Field(description="Riesgo de corrupción estimado (0.0 a 1.0) basado exclusivamente en el texto del documento.")
+    project_id: Optional[str] = Field(None, description="ID único del proyecto o documento generado.")
     metadata: Optional[Dict[str, Any]] = None
 
 @dataclass

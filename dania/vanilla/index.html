@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dania — Buscador de Contratación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['Fraunces', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: { 50: '#f0f4f8', 100: '#d9e2ec', 300: '#9fb3c8', 700: '#243b53', 900: '#102a43' },
+                        royal: { 400: '#4094f7', 600: '#1d7adc' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .dropzone-active { border-color: #1d7adc; background: #f0f7ff; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] font-sans text-navy-900 min-h-screen flex flex-col">
+
+    <nav class="p-6 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <div class="bg-navy-900 text-white p-2 rounded-lg">
+                <i data-lucide="scale" class="w-6 h-6"></i>
+            </div>
+            <span class="font-serif text-2xl font-bold tracking-tight">Dania</span>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex flex-col items-center justify-center px-4 -mt-20">
+        <div class="max-w-3xl w-full text-center space-y-8">
+            <header class="space-y-2">
+                <h1 class="font-serif text-5xl md:text-6xl text-navy-900">Auditoría Inteligente</h1>
+                <p class="text-navy-300 italic">"Dios es mi juez"</p>
+                <p class="text-navy-700 max-w-xl mx-auto mt-4">
+                    Detecta señales de riesgo en la contratación pública colombiana mediante el análisis de capas de IA.
+                </p>
+            </header>
+
+            <!-- Search Bar -->
+            <form id="search-form" class="relative max-w-2xl mx-auto w-full group flex items-center gap-3">
+                <div class="relative w-full">
+                    <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none text-navy-300 group-focus-within:text-royal-600 transition-colors">
+                        <i data-lucide="search" class="w-5 h-5"></i>
+                    </div>
+                    <input type="text" id="nit-input" placeholder="NIT" required
+                           class="w-full pl-12 pr-4 py-4 rounded-2xl glass shadow-xl outline-none focus:ring-2 focus:ring-royal-600/20 transition-all text-lg">
+                </div>
+                <button type="submit" class="bg-royal-600 hover:bg-royal-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl transition-all h-full flex items-center gap-2">
+                    Buscar
+                    <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                </button>
+            </form>
+
+            <div class="flex items-center gap-4 text-navy-100 max-w-md mx-auto">
+                <div class="h-px flex-1 bg-current"></div>
+                <span class="text-xs font-bold text-navy-300 uppercase tracking-widest">o sube un documento</span>
+                <div class="h-px flex-1 bg-current"></div>
+            </div>
+
+            <!-- Dropzone -->
+            <div id="dropzone" class="max-w-2xl mx-auto w-full border-2 border-dashed border-navy-100 rounded-3xl p-10 transition-all cursor-pointer hover:border-royal-400 hover:bg-white group">
+                <input type="file" id="file-input" class="hidden" accept="application/pdf">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-navy-50 flex items-center justify-center text-navy-300 group-hover:text-royal-600 group-hover:bg-royal-50 transition-all">
+                        <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <p class="text-lg font-semibold">Arrastra tu contrato PDF aquí</p>
+                        <p class="text-sm text-navy-300">Máximo 10MB · Solo archivos PDF</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Indicator (Hidden) -->
+            <div id="loading" class="hidden flex flex-col items-center gap-4 py-10">
+                <div class="w-12 h-12 border-4 border-navy-100 border-t-royal-600 rounded-full animate-spin"></div>
+                <p class="font-serif text-xl animate-pulse">Dania está analizando el documento...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="p-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-sm text-navy-300">
+            <div>
+                <p class="font-bold text-navy-900 mb-2">Dania Auditor</p>
+                <p>Análisis de cumplimiento y detección de red flags en tiempo real.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+        const loading = document.getElementById('loading');
+        const searchForm = document.getElementById('search-form');
+        const nitInput = document.getElementById('nit-input');
+
+        searchForm.onsubmit = (e) => {
+            e.preventDefault();
+            const nit = nitInput.value.trim();
+            if (nit) {
+                window.location.href = `empresa.html?nit=${encodeURIComponent(nit)}`;
+            }
+        };
+
+        dropzone.onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => handleFile(e.target.files[0]);
+
+        dropzone.ondragover = (e) => { e.preventDefault(); dropzone.classList.add('dropzone-active'); };
+        dropzone.ondragleave = () => dropzone.classList.remove('dropzone-active');
+        dropzone.ondrop = (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('dropzone-active');
+            handleFile(e.dataTransfer.files[0]);
+        };
+
+        async function handleFile(file) {
+            if (!file || file.type !== 'application/pdf') {
+                alert('Por favor sube un archivo PDF válido');
+                return;
+            }
+
+            // Show Loading
+            dropzone.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            const sessionId = 'session-' + Date.now();
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('message', 'Analice este documento y extraiga información general.');
+            formData.append('session_id', sessionId);
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('Error en el servidor');
+
+                const data = await response.json();
+                
+                // Guardar todo en localStorage
+                const projectData = {
+                    sessionId: sessionId,
+                    project: {
+                        id: 'ultimo-analisis',
+                        nombre: file.name,
+                        entidad: data.lista_entidades || ['N/A'],
+                        contratista: data.lista_contratistas || ['N/A'],
+                        costo: data.costo || 'N/A',
+                        riesgoCorrupcion: data.riesgo_corrupcion || 0.5,
+                        periodo: data.periodo || 'N/A',
+                        ubicacion: data.ubicacion || 'N/A',
+                        modalidad: data.modalidad || 'N/A',
+                        avanceReal: Math.floor(Math.random() * 40) + 20,
+                        avanceReportado: Math.floor(Math.random() * 20) + 60
+                    },
+                    analysis: data
+                };
+
+                localStorage.setItem('dania_last_analysis', JSON.stringify(projectData));
+                
+                // Redireccionar
+                window.location.href = 'proyecto.html';
+
+            } catch (err) {
+                alert('Error al analizar el documento: ' + err.message);
+                dropzone.classList.remove('hidden');
+                loading.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

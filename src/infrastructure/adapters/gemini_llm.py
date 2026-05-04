@@ -4,9 +4,10 @@ from src.application.ports.llm_port import LlmPort
 from src.domain.models import ChatResponse
 
 class GeminiLlmAdapter(LlmPort):
-    def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash"):
+    def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash", debug_mode: bool = False):
         self.api_key = api_key
         self.model_name = model_name
+        self.debug_mode = debug_mode
         # Usamos la sintaxis del SDK moderno google-genai
         self.client = genai.Client(api_key=self.api_key)
         
@@ -39,6 +40,8 @@ class GeminiLlmAdapter(LlmPort):
                 },
                 contents=contents
             )
+            if self.debug_mode:
+                print(f"\n--- GEMINI API RESPONSE ---\n{response.text}\n---------------------------\n")
             return response.text
         except Exception as e:
             raise RuntimeError(f"Error calling Gemini: {str(e)}")

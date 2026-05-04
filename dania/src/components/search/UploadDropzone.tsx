@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { UploadCloud, FileText } from 'lucide-react';
 import { useAnalyze } from '@/hooks/useAnalyze';
 import { useUploadStore } from '@/store/useUploadStore';
+import { useAnalysisStore } from '@/store/useAnalysisStore';
 import { toast } from '@/store/useToastStore';
 import { AnalyzingModal } from './AnalyzingModal';
 import { cn } from '@/lib/cn';
@@ -21,12 +22,16 @@ export function UploadDropzone() {
       return;
     }
     analyze.mutate(file, {
-      onSuccess: ({ project, alreadyExisted }) => {
-        if (alreadyExisted) toast.info('Documento ya existente — abriendo análisis previo');
-        navigate(`/proyecto/${project.id}`);
+      onSuccess: ({ alreadyExisted }) => {
+        if (alreadyExisted) toast.info('Documento ya cargado');
+        // The DOM changes automatically because HomePage listens to the store
+        // We update the URL just for consistency
+        navigate('/proyecto/ultimo-analisis');
         setTimeout(reset, 600);
       },
-      onError: (err) => toast.error(err.message ?? 'Falló el análisis'),
+      onError: (err) => {
+        toast.error(err.message ?? 'Falló el análisis');
+      },
     });
   };
 

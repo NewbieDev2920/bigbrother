@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Proyecto — Dania</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['Fraunces', 'serif'], sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 50: '#f0f4f8', 100: '#d9e2ec', 300: '#9fb3c8', 700: '#243b53', 900: '#102a43' },
+                        royal: { 400: '#4094f7', 600: '#1d7adc' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .risk-gauge { position: relative; width: 200px; height: 100px; overflow: hidden; }
+        .risk-arc { width: 200px; height: 200px; border-radius: 50%; border: 20px solid #e2e8f0; border-bottom-color: transparent; border-left-color: transparent; transform: rotate(-45deg); }
+        .risk-needle { position: absolute; bottom: 0; left: 50%; width: 4px; height: 80px; background: #102a43; transform-origin: bottom center; transition: transform 1s ease-out; }
+        
+        /* Markdown Styles */
+        .markdown-content { font-size: 0.95rem; line-height: 1.6; color: #243b53; }
+        .markdown-content p { margin-bottom: 1em; }
+        .markdown-content h1, .markdown-content h2 { font-family: 'Fraunces', serif; font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; }
+        .markdown-content ul { list-style: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-content strong { color: #102a43; font-weight: 600; }
+        
+        .pill { background: #f0f4f8; color: #243b53; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; border: 1px solid #d9e2ec; display: inline-block; margin: 2px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] font-sans text-navy-900 min-h-screen">
+
+    <nav class="sticky top-0 z-50 glass border-b border-navy-50 px-6 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-1 text-navy-300 hover:text-navy-900 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span class="text-sm font-medium">Volver</span>
+            </a>
+            <div class="h-4 w-px bg-navy-100"></div>
+            <div class="flex items-center gap-2">
+                <i data-lucide="scale" class="w-5 h-5 text-navy-900"></i>
+                <span class="font-serif font-bold tracking-tight">Dania</span>
+            </div>
+        </div>
+        <div id="project-id-tag" class="text-[10px] font-mono text-navy-300 tracking-widest uppercase">ID: ULTIMO-ANALISIS</div>
+    </nav>
+
+    <header class="bg-navy-900 text-white py-16 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-royal-400 via-transparent to-transparent"></div>
+        <div class="max-w-7xl mx-auto space-y-4 relative z-10">
+            <div class="flex items-center gap-2 text-royal-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                <span>Auditoría de IA Nivel 5</span>
+            </div>
+            <h1 id="project-title" class="font-serif text-5xl leading-tight max-w-4xl">Cargando proyecto...</h1>
+            <div id="entities-list" class="flex flex-col gap-2 pt-4">
+                <!-- Entities will be injected here -->
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-6 space-y-10">
+        
+        <!-- SECCIÓN 1: TOP (Riesgo + Info) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Risk Card -->
+            <div class="bg-white rounded-[2rem] p-10 shadow-xl shadow-navy-900/5 border border-navy-50 flex flex-col items-center gap-8">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-navy-300">Riesgo de Corrupción</h2>
+                
+                <div class="risk-gauge">
+                    <div class="risk-arc" id="gauge-arc"></div>
+                    <div class="risk-needle" id="gauge-needle" style="transform: rotate(-90deg)"></div>
+                </div>
+                <div class="text-center">
+                    <span id="risk-label" class="text-3xl font-serif font-bold">Calculando...</span>
+                    <p class="text-xs text-navy-300 mt-2 tracking-wide uppercase">Puntuación Basada en Patrones de IA</p>
+                </div>
+
+                <div class="w-full space-y-5 pt-6 border-t border-navy-50">
+                    <div class="flex justify-between text-[10px] font-bold uppercase tracking-widest text-navy-300">
+                        <span>Avance de Obra Real</span>
+                        <span id="avance-text">0%</span>
+                    </div>
+                    <div class="h-3 bg-navy-50 rounded-full overflow-hidden shadow-inner p-0.5">
+                        <div id="avance-bar" class="h-full bg-navy-900 rounded-full transition-all duration-1000 shadow-lg" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full pt-6 text-sm">
+                    <!-- Info items will be injected here -->
+                </div>
+            </div>
+
+            <!-- Media/Context Card -->
+            <div class="bg-white rounded-[2rem] p-10 shadow-xl shadow-navy-900/5 border border-navy-50 flex flex-col">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-navy-300 mb-8">Análisis Estructural (Contexto)</h2>
+                <div id="ai-summary" class="markdown-content flex-1 overflow-y-auto max-h-[500px] pr-4">
+                    <p>Procesando información con el motor de IA...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: MIDDLE (Chat Multiturno) -->
+        <div class="max-w-4xl mx-auto w-full gap-8">
+            <!-- Chat Panel -->
+            <div class="bg-white rounded-[2.5rem] shadow-2xl border border-navy-50 flex flex-col h-[700px] overflow-hidden">
+                <div class="p-8 border-b border-navy-50 bg-navy-50/30">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-2xl bg-royal-600 flex items-center justify-center text-white shadow-lg">
+                            <i data-lucide="bot" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-serif font-bold text-xl">Dania Chat</h3>
+                            <p class="text-[10px] text-royal-600 font-bold uppercase tracking-widest">En línea · Análisis Asistido por IA</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-8 space-y-6">
+                    <div class="flex gap-3">
+                        <div class="w-8 h-8 rounded-xl bg-navy-50 flex items-center justify-center text-navy-300 shrink-0"><i data-lucide="bot" class="w-4 h-4"></i></div>
+                        <div class="bg-navy-50 p-5 rounded-3xl rounded-tl-none text-sm text-navy-900 leading-relaxed shadow-sm">
+                            Hola. He analizado el contrato detalladamente. Puedes preguntarme sobre cláusulas, valores, riesgos específicos o cualquier detalle del documento.
+                        </div>
+                    </div>
+                </div>
+                <div class="p-6 border-t border-navy-50 bg-white">
+                    <div class="relative group">
+                        <textarea id="chat-input" placeholder="Pregunta algo sobre el contrato..." 
+                               class="w-full pl-6 pr-14 py-5 bg-navy-50 rounded-[1.5rem] outline-none focus:ring-4 focus:ring-royal-600/10 transition-all text-sm resize-none" rows="1"></textarea>
+                        <button id="send-btn" class="absolute right-3 bottom-3 p-3 bg-navy-900 text-white rounded-2xl hover:bg-navy-700 transition-all shadow-lg active:scale-95">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: Análisis de Tributarios -->
+        <div class="pt-10">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="font-serif text-3xl">Análisis de Entidades Involucradas</h2>
+                <div class="h-px flex-1 bg-navy-50"></div>
+            </div>
+            <div id="tributaries-grid" class="space-y-8">
+                <!-- Cards per tributary injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="p-20 text-center text-navy-100 bg-navy-900 mt-20">
+        <p class="text-[10px] uppercase tracking-[0.5em] font-bold">Big Brother System · Dania V1.2</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        // Cargar datos
+        const rawData = localStorage.getItem('dania_last_analysis');
+        if (!rawData) { window.location.href = 'index.html'; }
+        const data = JSON.parse(rawData);
+        const { project, analysis, sessionId } = data;
+
+        // Inyectar Título y Entidades
+        try {
+            document.getElementById('project-title').textContent = project.nombre || 'Proyecto Desconocido';
+        } catch(e) {}
+        
+        const entitiesList = document.getElementById('entities-list');
+        let tributarios = analysis.tributary_list;
+        
+        // Safety checks for AI hallucinations
+        if (typeof tributarios === 'string') {
+            try { tributarios = JSON.parse(tributarios); } catch(e) { tributarios = []; }
+        }
+        if (!Array.isArray(tributarios)) tributarios = [];
+        tributarios = tributarios.filter(t => t && typeof t === 'object'); // Ensure it's an array of objects
+
+        if (tributarios.length === 0) {
+            entitiesList.innerHTML = '<span class="text-sm text-navy-300">No se identificaron tributarios en este documento.</span>';
+        } else {
+            tributarios.forEach(t => {
+                const nameStr = t.name || 'Desconocido';
+                const nitStr = t.nit || 'S/N';
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-3 bg-white/10 w-fit px-4 py-2 rounded-xl backdrop-blur-md border border-white/20 shadow-sm';
+                div.innerHTML = `
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></div>
+                    <span class="font-semibold text-sm tracking-wide">${nameStr}</span>
+                    <span class="text-xs font-mono text-royal-300 bg-navy-900/60 px-2.5 py-1 rounded-md border border-royal-500/30">NIT: ${nitStr}</span>
+                `;
+                entitiesList.appendChild(div);
+            });
+        }
+        
+
+
+        // Gauge Logic
+        const score = analysis.riesgo_corrupcion || 0.5;
+        const degrees = (score * 180) - 90;
+        document.getElementById('gauge-needle').style.transform = `rotate(${degrees}deg)`;
+        const label = score > 0.7 ? 'Riesgo Muy Alto' : score > 0.3 ? 'Riesgo Moderado' : 'Riesgo Controlado';
+        const color = score > 0.7 ? '#f43f5e' : score > 0.3 ? '#f59e0b' : '#10b981';
+        document.getElementById('risk-label').textContent = label;
+        document.getElementById('risk-label').style.color = color;
+        document.getElementById('gauge-arc').style.borderTopColor = color;
+        document.getElementById('gauge-arc').style.borderRightColor = color;
+
+        // Progress
+        document.getElementById('avance-text').textContent = `${project.avanceReal}%`;
+        setTimeout(() => document.getElementById('avance-bar').style.width = `${project.avanceReal}%`, 500);
+
+        // Info Grid (Flexible height)
+        const infoItems = [
+            { icon: 'dollar-sign', label: 'Costo Total', value: project.costo || 'N/A' },
+            { icon: 'calendar', label: 'Periodo de Ejecución', value: project.periodo || 'N/A' },
+            { icon: 'map-pin', label: 'Ubicación Geográfica', value: project.ubicacion || 'N/A' },
+            { icon: 'file-text', label: 'Modalidad de Contratación', value: project.modalidad || 'N/A' }
+        ];
+
+        const infoGrid = document.getElementById('info-grid');
+        infoItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'flex items-start gap-4 p-4 bg-navy-50/50 rounded-[1.25rem] border border-navy-50 hover:bg-white transition-all';
+            div.innerHTML = `
+                <div class="p-2 bg-white rounded-xl shadow-sm text-royal-600"><i data-lucide="${item.icon}" class="w-4 h-4"></i></div>
+                <div class="min-w-0">
+                    <p class="text-[9px] uppercase font-black text-navy-300 tracking-widest mb-1">${item.label}</p>
+                    <p class="text-sm font-semibold text-navy-900 leading-snug">${item.value}</p>
+                </div>
+            `;
+            infoGrid.appendChild(div);
+        });
+
+        // Markdown Summary
+        try {
+            document.getElementById('ai-summary').innerHTML = marked.parse(analysis.chat_msg || '*Sin resumen detallado.*');
+        } catch(e) {
+            document.getElementById('ai-summary').innerHTML = '<p>' + (analysis.chat_msg || '*Sin resumen detallado.*') + '</p>';
+        }
+
+        // Tributaries (Dania Scoring API)
+        const tribGrid = document.getElementById('tributaries-grid');
+
+        if (tributarios.length === 0) {
+            tribGrid.innerHTML = '<p class="text-navy-300 text-center">No se encontraron entidades para analizar.</p>';
+        }
+
+        tributarios.forEach(async (t) => {
+            const nameStr = t.name || 'Desconocido';
+            const nitStr = t.nit || '00000';
+            const safeId = nitStr.replace(/[^a-zA-Z0-9]/g, '');
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bg-white rounded-[2rem] shadow-xl shadow-navy-900/5 border border-navy-50 overflow-hidden';
+            wrapper.innerHTML = `
+                <div class="p-6 bg-navy-900 text-white flex justify-between items-center">
+                    <div>
+                        <h3 class="font-serif text-2xl">${nameStr}</h3>
+                        <p class="font-mono text-sm text-royal-400 mt-1">NIT: ${nitStr}</p>
+                    </div>
+                    <div id="status-${safeId}" class="text-xs uppercase tracking-widest font-bold animate-pulse">Analizando...</div>
+                </div>
+                <div id="content-${safeId}" class="p-8 hidden"></div>
+                <div id="error-${safeId}" class="p-8 text-rose-500 font-medium hidden"></div>
+            `;
+            tribGrid.appendChild(wrapper);
+
+            try {
+                // Estandarizar NIT: Remover guión de verificación y caracteres extraños
+                const cleanNit = nitStr.split('-')[0].replace(/[^0-9]/g, '').trim();
+                const res = await fetch('/dania/score/' + encodeURIComponent(cleanNit));
+                if (!res.ok) throw new Error('Servicio de scoring no disponible');
+                const tData = await res.json();
+                
+                if (tData.error) throw new Error(tData.error);
+                
+                document.getElementById('status-' + safeId).textContent = 'Análisis Completo';
+                document.getElementById('status-' + safeId).classList.remove('animate-pulse');
+                document.getElementById('status-' + safeId).classList.add('text-emerald-400');
+                
+                const isAlto = tData.riesgo === 'alto';
+                const isMedio = tData.riesgo === 'medio';
+                const colorClass = isAlto ? 'text-rose-500' : isMedio ? 'text-amber-500' : 'text-emerald-500';
+                const bgClass = isAlto ? 'bg-rose-50 border-rose-200' : isMedio ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200';
+                const riskLabel = isAlto ? 'Muy Alto' : isMedio ? 'Moderado' : 'Controlado';
+
+                let featuresHtml = '';
+                if (tData.vector_x) {
+                    const topFeatures = Object.entries(tData.vector_x).slice(0, 6);
+                    featuresHtml = `<div class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6">`;
+                    for (const [k, v] of topFeatures) {
+                        featuresHtml += `
+                            <div class="p-4 border border-navy-50 rounded-xl bg-navy-50/30">
+                                <p class="text-[9px] uppercase tracking-widest text-navy-300 font-bold mb-1 truncate" title="${k}">${k}</p>
+                                <p class="font-mono text-lg text-royal-600 font-bold">${Number(v).toLocaleString(undefined,{maximumFractionDigits:2})}</p>
+                            </div>
+                        `;
+                    }
+                    featuresHtml += `</div>`;
+                }
+
+                const info = tData.company_info || {};
+                const nameInfo = info.Nombre || info.nombre || t.name;
+
+                document.getElementById('content-' + safeId).innerHTML = `
+                    <div class="flex flex-col md:flex-row gap-8 items-start">
+                        <div class="flex flex-col items-center justify-center p-8 rounded-3xl border ${bgClass} shrink-0 w-full md:w-64 text-center">
+                            <span class="text-[10px] uppercase tracking-[0.2em] font-bold text-navy-300 mb-2">Índice Dania</span>
+                            <span class="text-4xl font-serif font-bold ${colorClass}">${(tData.d || 0).toFixed(2)}</span>
+                            <span class="mt-2 text-xs font-bold uppercase tracking-widest ${colorClass}">Riesgo ${riskLabel}</span>
+                        </div>
+                        
+                        <div class="flex-1 w-full">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 mb-6 text-sm">
+                                <div><span class="text-navy-300 text-xs block mb-1">Empresa</span><span class="font-semibold text-navy-900">${nameInfo}</span></div>
+                                <div><span class="text-navy-300 text-xs block mb-1">Ubicación</span><span class="font-semibold text-navy-900">${info.Municipio || 'N/A'}, ${info.Departamento || 'N/A'}</span></div>
+                                <div><span class="text-navy-300 text-xs block mb-1">Creación</span><span class="font-semibold text-navy-900">${info['Fecha Creación'] || 'N/A'}</span></div>
+                                <div><span class="text-navy-300 text-xs block mb-1">Tipo</span><span class="font-semibold text-navy-900">${info['Tipo Empresa'] || 'N/A'}</span></div>
+                            </div>
+                            <div class="w-full h-px bg-navy-50"></div>
+                            ${featuresHtml}
+                            <div class="mt-6 text-right">
+                                <a href="empresa.html?nit=${encodeURIComponent(cleanNit)}&name=${encodeURIComponent(nameStr)}" class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-royal-600 hover:text-royal-700 transition-colors">
+                                    Ver Análisis Completo <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('content-' + safeId).classList.remove('hidden');
+                lucide.createIcons();
+            } catch (err) {
+                document.getElementById('status-' + safeId).textContent = 'Error';
+                document.getElementById('status-' + safeId).classList.remove('animate-pulse');
+                document.getElementById('status-' + safeId).classList.add('text-rose-500');
+                
+                document.getElementById('error-' + safeId).innerHTML = `<i data-lucide="alert-circle" class="w-5 h-5 inline-block mr-2 align-middle"></i> <span class="align-middle">No se pudo generar el análisis (${err.message})</span>`;
+                document.getElementById('error-' + safeId).classList.remove('hidden');
+                lucide.createIcons();
+            }
+        });
+
+        // Chat Logic
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            // User Message
+            const uDiv = document.createElement('div');
+            uDiv.className = 'flex gap-3 flex-row-reverse';
+            uDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-royal-600 flex items-center justify-center text-white shrink-0 shadow-lg"><i data-lucide="user" class="w-4 h-4"></i></div>
+                <div class="bg-navy-900 text-white p-5 rounded-[1.5rem] rounded-tr-none text-sm shadow-xl leading-relaxed max-w-[85%]">${text}</div>
+            `;
+            chatMessages.appendChild(uDiv);
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // Bot Loading
+            const botDiv = document.createElement('div');
+            botDiv.className = 'flex gap-3';
+            botDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-xl bg-navy-50 flex items-center justify-center text-navy-300 shrink-0"><i data-lucide="bot" class="w-4 h-4"></i></div>
+                <div class="bg-navy-50 p-5 rounded-[1.5rem] rounded-tl-none text-sm text-navy-900 shadow-sm animate-pulse">Pensando...</div>
+            `;
+            chatMessages.appendChild(botDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: text, session_id: sessionId })
+                });
+                const resData = await response.json();
+                botDiv.querySelector('div:last-child').classList.remove('animate-pulse');
+                botDiv.querySelector('div:last-child').innerHTML = marked.parse(resData.chat_msg);
+                lucide.createIcons();
+            } catch (err) {
+                botDiv.querySelector('div:last-child').textContent = 'Error de conexión.';
+            }
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        sendBtn.onclick = sendMessage;
+        chatInput.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>

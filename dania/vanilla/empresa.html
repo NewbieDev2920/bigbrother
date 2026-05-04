@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análisis de Empresa — Dania</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { serif: ['Fraunces', 'serif'], sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        navy: { 50: '#f0f4f8', 100: '#d9e2ec', 300: '#9fb3c8', 700: '#243b53', 900: '#102a43' },
+                        royal: { 400: '#4094f7', 600: '#1d7adc' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .risk-gauge { position: relative; width: 200px; height: 100px; overflow: hidden; }
+        .risk-arc { width: 200px; height: 200px; border-radius: 50%; border: 20px solid #e2e8f0; border-bottom-color: transparent; border-left-color: transparent; transform: rotate(-45deg); }
+        .risk-needle { position: absolute; bottom: 0; left: 50%; width: 4px; height: 80px; background: #102a43; transform-origin: bottom center; transition: transform 1s ease-out; }
+        .pill { background: #f0f4f8; color: #243b53; padding: 2px 10px; border-radius: 99px; font-size: 11px; font-weight: 600; border: 1px solid #d9e2ec; display: inline-block; margin: 2px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] font-sans text-navy-900 min-h-screen">
+
+    <nav class="sticky top-0 z-50 glass border-b border-navy-50 px-6 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-1 text-navy-300 hover:text-navy-900 transition-colors">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                <span class="text-sm font-medium">Volver</span>
+            </a>
+            <div class="h-4 w-px bg-navy-100"></div>
+            <div class="flex items-center gap-2">
+                <i data-lucide="scale" class="w-5 h-5 text-navy-900"></i>
+                <span class="font-serif font-bold tracking-tight">Dania</span>
+            </div>
+        </div>
+        <div id="project-id-tag" class="text-[10px] font-mono text-navy-300 tracking-widest uppercase">ID: EMPRESA</div>
+    </nav>
+
+    <header class="bg-navy-900 text-white py-16 px-6 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-royal-400 via-transparent to-transparent"></div>
+        <div class="max-w-7xl mx-auto space-y-4 relative z-10">
+            <div class="flex items-center gap-2 text-royal-400 text-[10px] font-bold uppercase tracking-[0.2em]">
+                <i data-lucide="briefcase" class="w-4 h-4"></i>
+                <span>Análisis de Empresa</span>
+            </div>
+            <h1 id="company-title" class="font-serif text-5xl leading-tight max-w-4xl">Cargando datos...</h1>
+            <div id="company-pills" class="flex flex-wrap gap-2 pt-2">
+                <span id="nit-pill" class="pill">NIT: ...</span>
+            </div>
+        </div>
+    </header>
+
+    <main id="main-content" class="max-w-7xl mx-auto p-6 space-y-10 hidden">
+        
+        <!-- SECCIÓN 1: TOP (Riesgo + Info) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Risk Card -->
+            <div class="bg-white rounded-[2rem] p-10 shadow-xl shadow-navy-900/5 border border-navy-50 flex flex-col items-center gap-8 lg:col-span-1">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-navy-300">Índice Dania</h2>
+                
+                <div class="risk-gauge">
+                    <div class="risk-arc" id="gauge-arc"></div>
+                    <div class="risk-needle" id="gauge-needle" style="transform: rotate(-90deg)"></div>
+                </div>
+                <div class="text-center">
+                    <span id="risk-label" class="text-3xl font-serif font-bold">Calculando...</span>
+                    <p class="text-xs text-navy-300 mt-2 tracking-wide uppercase">Puntuación de Riesgo Algorítmico</p>
+                    <p id="dania-score" class="text-sm font-mono mt-1 font-bold text-navy-700"></p>
+                </div>
+            </div>
+
+            <!-- Company Info -->
+            <div class="bg-white rounded-[2rem] p-10 shadow-xl shadow-navy-900/5 border border-navy-50 flex flex-col lg:col-span-2">
+                <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-navy-300 mb-8">Información General</h2>
+                <div id="info-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full flex-1">
+                    <!-- Info items injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: Features -->
+        <div class="pt-10">
+            <div class="flex items-center gap-4 mb-8">
+                <h2 class="font-serif text-3xl">Variables Estructurales (Features)</h2>
+                <div class="h-px flex-1 bg-navy-50"></div>
+            </div>
+            <div id="features-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                <!-- Feature cards injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <div id="loading" class="py-32 text-center text-navy-300 flex flex-col items-center gap-4">
+        <div class="w-10 h-10 border-4 border-navy-100 border-t-royal-600 rounded-full animate-spin"></div>
+        <p class="animate-pulse">Calculando Índice Dania y recuperando información...</p>
+    </div>
+
+    <div id="error" class="py-32 text-center text-rose-500 flex flex-col items-center gap-4 hidden">
+        <i data-lucide="alert-triangle" class="w-10 h-10"></i>
+        <p class="font-bold" id="error-msg">Error al cargar datos.</p>
+    </div>
+
+    <footer class="p-20 text-center text-navy-100 bg-navy-900 mt-20">
+        <p class="text-[10px] uppercase tracking-[0.5em] font-bold">Big Brother System · Dania V1.2</p>
+    </footer>
+
+    <script>
+        lucide.createIcons();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let rawNit = urlParams.get('nit');
+        const nameFallback = urlParams.get('name') || 'Empresa Desconocida';
+        
+        if (!rawNit) {
+            window.location.href = 'index.html';
+        } else {
+            // Normalizar el NIT eliminando guión de verificación y caracteres extraños
+            const nit = rawNit.split('-')[0].replace(/[^0-9]/g, '');
+
+            const nitPill = document.getElementById('nit-pill');
+            if (nitPill) nitPill.textContent = `NIT: ${nit}`;
+
+            async function loadCompanyData() {
+            try {
+                const response = await fetch('/dania/score/' + encodeURIComponent(nit));
+                if (!response.ok) throw new Error('Error al obtener el análisis.');
+                const data = await response.json();
+
+                if (data.error) throw new Error(data.error);
+
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+
+                // Header
+                const cInfo = data.company_info || {};
+                document.getElementById('company-title').textContent = cInfo.Nombre || cInfo.nombre || nameFallback;
+                document.getElementById('dania-score').textContent = `D: ${data.d.toFixed(4)} (Δ: ${data.delta.toFixed(2)})`;
+                
+                // Pills
+                const pills = document.getElementById('company-pills');
+                if (cInfo['Tipo Empresa']) {
+                    const sp = document.createElement('span'); sp.className = 'pill'; sp.textContent = cInfo['Tipo Empresa']; pills.appendChild(sp);
+                }
+                if (cInfo['Es Pyme'] === 'Sí') {
+                    const sp = document.createElement('span'); sp.className = 'pill bg-emerald-100 border-emerald-200 text-emerald-800'; sp.textContent = 'PYME'; pills.appendChild(sp);
+                }
+
+                // Gauge
+                let score = data.d || 0; // Dania index typically around 0 to 1+, but can be higher. We cap for visual at 1.0.
+                if (score > 1.0) score = 1.0;
+                
+                const degrees = (score * 180) - 90;
+                setTimeout(() => {
+                    document.getElementById('gauge-needle').style.transform = `rotate(${degrees}deg)`;
+                }, 100);
+
+                const isAlto = data.riesgo === 'alto';
+                const isMedio = data.riesgo === 'medio';
+                const label = isAlto ? 'Riesgo Muy Alto' : isMedio ? 'Riesgo Moderado' : 'Riesgo Controlado';
+                const color = isAlto ? '#f43f5e' : isMedio ? '#f59e0b' : '#10b981';
+                
+                const riskLabelEl = document.getElementById('risk-label');
+                riskLabelEl.textContent = label;
+                riskLabelEl.style.color = color;
+                document.getElementById('gauge-arc').style.borderTopColor = color;
+                document.getElementById('gauge-arc').style.borderRightColor = color;
+                document.getElementById('dania-score').textContent = `D: ${data.d.toFixed(4)} (Δ: ${data.delta.toFixed(2)})`;
+
+                // Info Grid
+                const infoGrid = document.getElementById('info-grid');
+                
+                for (const [k, v] of Object.entries(cInfo)) {
+                    // Skip redundant, empty or index fields
+                    if (k === 'index' || !v || k === 'Nombre' || k === 'nombre' || k === 'NIT' || k === 'nit') continue; 
+                    
+                    let icon = 'info';
+                    const lowerK = k.toLowerCase();
+                    if (lowerK.includes('fecha')) icon = 'calendar';
+                    else if (lowerK.includes('municipio') || lowerK.includes('departamento') || lowerK.includes('pais') || lowerK.includes('direccion') || lowerK.includes('ubicacion')) icon = 'map-pin';
+                    else if (lowerK.includes('representante')) icon = 'user';
+                    else if (lowerK.includes('correo')) icon = 'mail';
+                    else if (lowerK.includes('telefono') || lowerK.includes('fax')) icon = 'phone';
+                    else if (lowerK.includes('web')) icon = 'globe';
+                    else if (lowerK.includes('pyme') || lowerK.includes('empresa') || lowerK.includes('grupo') || lowerK.includes('entidad') || lowerK.includes('categoria')) icon = 'briefcase';
+                    else if (lowerK.includes('codigo') || lowerK.includes('doc')) icon = 'file-digit';
+
+                    const div = document.createElement('div');
+                    div.className = 'flex items-start gap-4 p-4 bg-navy-50/50 rounded-[1.25rem] border border-navy-50 hover:bg-white transition-all';
+                    div.innerHTML = `
+                        <div class="p-2 bg-white rounded-xl shadow-sm text-royal-600"><i data-lucide="${icon}" class="w-4 h-4"></i></div>
+                        <div class="min-w-0">
+                            <p class="text-[9px] uppercase font-black text-navy-300 tracking-widest mb-1 truncate" title="${k}">${k}</p>
+                            <p class="text-sm font-semibold text-navy-900 leading-snug break-words">${v}</p>
+                        </div>
+                    `;
+                    infoGrid.appendChild(div);
+                }
+
+                // Features Grid
+                const features = data.vector_x || {};
+                const featureLabels = {
+                    'x1_sanciones': { label: 'Sanciones', desc: 'Cantidad de sanciones disciplinarias / multas.', icon: 'alert-circle' },
+                    'x2_concentracion_contratos': { label: 'Concentración (Nacional)', desc: 'Fracción de contratos del país ganados.', icon: 'pie-chart' },
+                    'x3_max_modalidad': { label: 'Fijación de Modalidad', desc: 'Concentración en una sola modalidad de contrato.', icon: 'target' },
+                    'x4_dias_desde_creacion': { label: 'Días desde creación', desc: 'Antigüedad de la empresa en la plataforma.', icon: 'clock' },
+                    'x5_razon_anticipo': { label: 'Razón Anticipo', desc: 'Proporción promedio de anticipos sobre valor total.', icon: 'banknote' },
+                    'x6_razon_ejecucion': { label: 'Razón Ejecución', desc: 'Proporción de valor pagado vs valor facturado.', icon: 'activity' },
+                    'x7_max_log_growth_count': { label: 'Crecimiento (Cantidad)', desc: 'Crecimiento logarítmico en volumen de contratos.', icon: 'trending-up' },
+                    'x8_max_log_growth_value': { label: 'Crecimiento (Valor)', desc: 'Crecimiento logarítmico en valor de contratos.', icon: 'trending-up' },
+                    'x9_max_concentracion_entidad_proveedor': { label: 'Captura Entidad', desc: 'Fracción de contratos de una entidad dados a este proveedor.', icon: 'lock' },
+                    'x10_velocidad_adjudicacion_dias': { label: 'Velocidad Adjudicación', desc: 'Días mínimos entre publicación y adjudicación.', icon: 'zap' },
+                    'x11_prob_ganar_adjudicacion': { label: 'Falta Competencia', desc: 'Inverso promedio de proveedores únicos oferentes.', icon: 'users' }
+                };
+
+                const fGrid = document.getElementById('features-grid');
+                for (const [key, val] of Object.entries(features)) {
+                    const info = featureLabels[key] || { label: key, desc: '', icon: 'hash' };
+                    const card = document.createElement('div');
+                    card.className = 'bg-white p-6 rounded-[2rem] shadow-sm border border-navy-50 hover:shadow-md transition-all space-y-2';
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3 mb-2">
+                            <div class="w-8 h-8 rounded-xl bg-navy-50 flex items-center justify-center text-navy-900"><i data-lucide="${info.icon}" class="w-4 h-4"></i></div>
+                            <span class="font-serif font-bold text-sm leading-tight">${info.label}</span>
+                        </div>
+                        <div class="font-mono text-xl text-royal-600 font-bold">${val.toLocaleString(undefined, {maximumFractionDigits:4})}</div>
+                        <p class="text-[10px] text-navy-300 uppercase font-bold tracking-wider leading-relaxed">${info.desc}</p>
+                    `;
+                    fGrid.appendChild(card);
+                }
+
+                lucide.createIcons();
+
+            } catch (err) {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('error-msg').textContent = err.message;
+            }
+        }
+
+        loadCompanyData();
+        }
+    </script>
+</body>
+</html>

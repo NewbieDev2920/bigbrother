@@ -17,9 +17,10 @@ def bootstrap():
     TARGET_PDF_PATH = config["TARGET_PDF_PATH"]
     POPPLER_PATH = config["POPPLER_PATH"]
     SYSTEM_PROMPT = config["SYSTEM_PROMPT"]
+    DEBUG_MODE = config.get("DEBUG_MODE", False)
 
     # Initialize Outbound Adapters
-    llm_adapter = GeminiLlmAdapter(api_key=GEMINI_API_KEY, model_name=GEMINI_MODEL)
+    llm_adapter = GeminiLlmAdapter(api_key=GEMINI_API_KEY, model_name=GEMINI_MODEL, debug_mode=DEBUG_MODE)
     ocr_adapter = TesseractOcrAdapter()
 
     # Initialize the core service (Application)

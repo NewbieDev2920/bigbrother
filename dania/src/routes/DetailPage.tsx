@@ -12,6 +12,7 @@ import { Modal } from '@/components/ui/Modal';
 import { RiskBadge } from '@/components/ui/RiskBadge';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { AspectChart } from '@/components/project/AnalysisCard';
+import { useAnalysisStore } from '@/store/useAnalysisStore';
 import type { AspectKey } from '@/types/analysis';
 import { ASPECT_KEYS, ASPECT_LABELS, CAPA_LABELS } from '@/types/analysis';
 import { scoreToRiskLevel, getRiskColorClasses } from '@/lib/risk';
@@ -22,11 +23,16 @@ export default function DetailPage() {
   const navigate = useNavigate();
   const [chatOpen, setChatOpen] = useState(false);
 
+  const { currentProject, currentAnalysis } = useAnalysisStore();
   const { data, isLoading } = useQuery({
     queryKey: ['project', id],
     queryFn: () => ai.getProject(id),
-    enabled: !!id,
+    enabled: !!id && id !== 'ultimo-analisis',
   });
+
+  const displayData = id === 'ultimo-analisis' 
+    ? (currentProject ? { project: currentProject, analysis: currentAnalysis } : null)
+    : data;
 
   if (isLoading) {
     return (
@@ -38,7 +44,7 @@ export default function DetailPage() {
     );
   }
 
-  if (!data || !aspecto || !ASPECT_KEYS.includes(aspecto as AspectKey)) {
+  if (!displayData || !aspecto || !ASPECT_KEYS.includes(aspecto as AspectKey)) {
     return (
       <PageShell>
         <EmptyState title="Aspecto no encontrado" description="Verifica el enlace e inténtalo nuevamente." />
@@ -47,7 +53,7 @@ export default function DetailPage() {
   }
 
   const aspect = aspecto as AspectKey;
-  const { project, analysis } = data;
+  const { project, analysis } = displayData;
   const aspectScore = analysis?.aspectos?.[aspect];
   
   if (!aspectScore) {

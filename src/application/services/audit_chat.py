@@ -2,6 +2,7 @@ from src.domain.models import ChatRequest, ChatResponse
 from src.application.ports.ocr_port import OcrPort
 from src.application.ports.llm_port import LlmPort
 import json
+import os
 
 class AuditChatService:
     def __init__(self, ocr_port: OcrPort, llm_port: LlmPort, system_prompt: str, poppler_path: str):
@@ -44,6 +45,10 @@ class AuditChatService:
             # 4. Parse and update history
             response_data = json.loads(response_text)
             
+            # Ensure project_id is present
+            if not response_data.get("project_id"):
+                response_data["project_id"] = "ultimo-analisis"
+
             # We only store the 'chat_msg' part in history to avoid bloating with structured data
             # unless we want Gemini to remember the full JSON (usually not needed for conversational flow)
             history.append({"role": "user", "text": user_content})
@@ -52,4 +57,6 @@ class AuditChatService:
             
             return ChatResponse(**response_data)
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             raise RuntimeError(str(e))
